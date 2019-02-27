@@ -1,21 +1,25 @@
 ﻿using Improbable.Gdk.Core;
 using Improbable.Gdk.PlayerLifecycle;
 using Improbable.Worker.CInterop;
+using Improbable.Gdk.GameObjectCreation;
+using Improbable.Gdk.GameObjectRepresentation;
+using Improbable.Gdk.TransformSynchronization;
 
-namespace BlankProject
+namespace ProtoGame
 {
     public class UnityClientConnector : DefaultWorkerConnector
-    {
-        public const string WorkerType = "UnityClient";
-        
+    { 
         private async void Start()
         {
-            await Connect(WorkerType, new ForwardingDispatcher()).ConfigureAwait(false);
+            await Connect(WorkerUtils.UnityClient, new ForwardingDispatcher()).ConfigureAwait(false);
         }
 
         protected override void HandleWorkerConnectionEstablished()
         {
             PlayerLifecycleHelper.AddClientSystems(Worker.World);
+            GameObjectCreationHelper.EnableStandardGameObjectCreation(Worker.World);
+            GameObjectRepresentationHelper.AddSystems(Worker.World);
+            TransformSynchronizationHelper.AddClientSystems(Worker.World);
         }
 
         protected override string SelectDeploymentName(DeploymentList deployments)

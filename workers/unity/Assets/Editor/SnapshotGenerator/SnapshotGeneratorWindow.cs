@@ -2,7 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace BlankProject.Editor
+namespace ProtoGame.Editor
 {
     internal class SnapshotEditorWindow : EditorWindow
     {

@@ -1,0 +1,9 @@
+package player;
+
+component PlayerMovement
+{
+    id = 12002;
+    float x = 1;
+    float y = 2;
+    float z = 3;
+}

@@ -4,7 +4,9 @@ using Improbable.PlayerLifecycle;
 using UnityEngine;
 using Snapshot = Improbable.Gdk.Core.Snapshot;
 
-namespace BlankProject.Editor
+//using ProtoGame;
+
+namespace ProtoGame.Editor
 {
     internal static class SnapshotGenerator
     {
@@ -32,7 +34,7 @@ namespace BlankProject.Editor
 
         private static void AddPlayerSpawner(Snapshot snapshot)
         {
-            var serverAttribute = UnityGameLogicConnector.WorkerType;
+            var serverAttribute = WorkerUtils.UnityGameLogic;
             
             var template = new EntityTemplate();
             template.AddComponent(new Position.Snapshot(), serverAttribute);
@@ -40,7 +42,7 @@ namespace BlankProject.Editor
             template.AddComponent(new Persistence.Snapshot(), serverAttribute);
             template.AddComponent(new PlayerCreator.Snapshot(), serverAttribute);
 
-            template.SetReadAccess(UnityClientConnector.WorkerType, UnityGameLogicConnector.WorkerType, AndroidClientWorkerConnector.WorkerType, iOSClientWorkerConnector.WorkerType);
+            template.SetReadAccess(WorkerUtils.UnityClient, WorkerUtils.UnityGameLogic/*, AndroidClientWorkerConnector.WorkerType, iOSClientWorkerConnector.WorkerType*/);
             template.SetComponentWriteAccess(EntityAcl.ComponentId, serverAttribute);
 
             snapshot.AddEntity(template);

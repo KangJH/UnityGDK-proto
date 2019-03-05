@@ -1,41 +1,36 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-using Improbable.Gdk.Core;
-using Improbable.Gdk.GameObjectRepresentation;
-
-using Player;
-
-namespace ProtoGame
+public class MovementHandlerClient : MonoBehaviour
 {
-    public class MovementHandlerClient : MonoBehaviour
+    public float Speed;
+    public float Gravity;
+    private CharacterController _controller;
+    private Vector3 moveDirection = Vector3.zero;
+    private void OnEnable()
     {
-        [Require] private PlayerMovement.Requirable.Reader playerMovement;
-        private CharacterController _controller;
-        private Vector3 move;
+        _controller = GetComponent<CharacterController>();
+        // prevMove = Vector3.zero;
+    }
 
-        void Start()
+    void Update()
+    {
+        if (_controller.isGrounded)
         {
-            _controller = GetComponent<CharacterController>();
-        }
-        private void OnEnable()
-        {
-            playerMovement.ComponentUpdated += OnPlayerMovementUpdated;
-            move = Vector3.zero;
-        }
-        // Update is called once per frame
-        void Update()
-        {
-            _controller.Move(move);
-            if (move != Vector3.zero)
-                transform.forward = move;
+            // We are grounded, so recalculate
+            // move direction directly from axes
+
+            moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
+            moveDirection = transform.TransformDirection(moveDirection);
+            moveDirection = moveDirection * Speed;
+
         }
 
-        private void OnPlayerMovementUpdated(PlayerMovement.Update update)
-        {
-            move = new Vector3(update.X, update.Y, update.Z);
-            Debug.Log("move updated.(" + move.x + ", " + move.y + ", " + move.z + ")");
-        }
+        // Apply gravity
+        moveDirection.y = moveDirection.y - (Gravity * Time.deltaTime);
+
+        // Move the controller
+        _controller.Move(moveDirection * Time.deltaTime);
     }
 }
+

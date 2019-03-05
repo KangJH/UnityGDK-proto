@@ -27,8 +27,9 @@ namespace ProtoGame.Editor
         private static Snapshot CreateSnapshot()
         {
             var snapshot = new Snapshot();
-
             AddPlayerSpawner(snapshot);
+
+            snapshot.AddEntity(EntityCreationTemplate.CreateLandEntity());
             return snapshot;
         }
 

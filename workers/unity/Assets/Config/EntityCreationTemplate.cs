@@ -21,19 +21,20 @@ namespace ProtoGame
             responseHandler.OnCreateEntityResponse += OnCreateEntityResponse;
         }
 
-        public void CreateExampleEntity()
+        static public EntityTemplate CreateLandEntity()
         {
-            /*var entityTemplate = new EntityTemplate();
+            var entityTemplate = new EntityTemplate();
 
-            entityTemplate.AddComponent(new Position.Snapshot(), "UnityGameLogic");
-            entityTemplate.AddComponent(new Metadata.Snapshot { EntityType = "MyPrefab" }, "UnityGameLogic");
-            entityTemplate.AddComponent(new ExampleComponent.Snapshot(), "UnityGameLogic");
-            entityTemplate.SetReadAccess("UnityGameLogic", "UnityClient");
-            entityTemplate.SetComponentWriteAccess(EntityAcl.ComponentId, "UnityGameLogic");
+            entityTemplate.AddComponent(new Position.Snapshot(), WorkerUtils.UnityGameLogic);
+            entityTemplate.AddComponent(new Metadata.Snapshot { EntityType = "Plane" }, WorkerUtils.UnityGameLogic);
+            entityTemplate.AddComponent(new Persistence.Snapshot(), WorkerUtils.UnityGameLogic);
+            entityTemplate.SetReadAccess(WorkerUtils.UnityGameLogic, WorkerUtils.UnityClient);
+            entityTemplate.SetComponentWriteAccess(EntityAcl.ComponentId, WorkerUtils.UnityGameLogic);
 
             // send create entity command request without reserving an entity id
             // The SpatialOS Runtime will automatically assign a SpatialOS entity id to the newly created entity
-            commandSender.CreateEntity(entityTemplate);*/
+            //commandSender.CreateEntity(entityTemplate);
+            return entityTemplate;
         }
 
         void OnCreateEntityResponse(WorldCommands.CreateEntity.ReceivedResponse response)
@@ -49,19 +50,5 @@ namespace ProtoGame
             }
         }
 
-        /*public static EntityTemplate CreatePlayerEntityTemplate(Coordinates coords)
-        {
-            var entityTemplate = new EntityTemplate();
-
-            entityTemplate.AddComponent(new Position.Snapshot { Coords = coords }, "UnityGameLogic");
-            entityTemplate.AddComponent(new Metadata.Snapshot { EntityType = "Player" }, "UnityGameLogic");
-            entityTemplate.AddComponent(new Persistence.Snapshot(), "UnityGameLogic");
-            entityTemplate.AddComponent(new PlayerInput.Snapshot { Horizontal = 0.0f, Vertical = 0.0f, Running = false }, "UnityClient");
-            entityTemplate.AddComponent(new PlayerMovement.Snapshot { X = 0.0f, Y = 0.0f, Z = 0.0f }, "UnityGameLogic");
-            entityTemplate.SetReadAccess("UnityGameLogic", "UnityClient");
-            entityTemplate.SetComponentWriteAccess(EntityAcl.ComponentId, "UnityGameLogic");
-
-            return entityTemplate;
-        }*/
     }
 }

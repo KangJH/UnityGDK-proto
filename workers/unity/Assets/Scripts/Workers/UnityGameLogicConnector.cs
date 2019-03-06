@@ -29,14 +29,20 @@ namespace ProtoGame
 
         private static EntityTemplate CreatePlayerEntityTemplate(string workerId, Improbable.Vector3f position)
         {
+            //Decide spawn position
+            GameObject[] playerSpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
+            Vector3 spawnPos = playerSpawnPoints[Random.Range(0, playerSpawnPoints.Length - 1)].transform.position;
+            foreach (GameObject go in playerSpawnPoints)
+                Debug.Log("Spawn candidate:" + go.transform.position);
+            Debug.Log("Spawned Pos:" + spawnPos);
+            //Setup SpatialOS entity and components
             var clientAttribute = $"workerId:{workerId}";
             var serverAttribute = WorkerUtils.UnityGameLogic;
             Debug.Log("Create Entity: " + clientAttribute);
             var template = new EntityTemplate();
-            template.AddComponent(new Position.Snapshot { Coords = new Coordinates(position.X, position.Y, position.Z) }, serverAttribute);
+            template.AddComponent(new Position.Snapshot { Coords = new Coordinates(spawnPos.x, spawnPos.y, spawnPos.z) }, serverAttribute);
             template.AddComponent(new Metadata.Snapshot { EntityType = "Player" }, serverAttribute);
-            template.AddComponent(new PlayerInput.Snapshot { Horizontal = 0.0f, Vertical = 0.0f, Running = false }, clientAttribute);
-            //template.AddComponent(new PlayerMovement.Snapshot { X = 0.0f, Y = 0.0f, Z = 0.0f }, serverAttribute);
+            template.AddComponent(new PlayerInput.Snapshot { MouseX = 0.0f, MouseY = 0.0f, MouseBtn0 = false, MouseBtn1 = false }, clientAttribute);
             TransformSynchronizationHelper.AddTransformSynchronizationComponents(template, serverAttribute);
             PlayerLifecycleHelper.AddPlayerLifecycleComponents(template, workerId, clientAttribute, serverAttribute);
 

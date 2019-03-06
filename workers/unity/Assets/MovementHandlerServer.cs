@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 using Improbable;
 using Improbable.Gdk.Core;
@@ -13,62 +14,44 @@ namespace ProtoGame
     {
         [Require] private PlayerInput.Requirable.Reader playerInput;
         [Require] private Position.Requirable.Writer authority;
-        private float horizontal_input;
-        private float vertical_input;
-       // private Vector3 prevMove;
-        public float Speed;
-        public float Gravity;
-        private CharacterController _controller;
-        private Vector3 moveDirection = Vector3.zero;
+        private float mouseX, mouseY;
+        private bool mouse0Button, mouse1Button;
+        private NavMeshAgent _agent;
         private void OnEnable()
         {
             playerInput.ComponentUpdated += OnPlayerInputUpdated;
-            _controller = GetComponent<CharacterController>();
-           // prevMove = Vector3.zero;
+            _agent = GetComponent<NavMeshAgent>();
         }
 
         void Update()
         {
-            //Debug.Log("("+ horizontal_input + ", " + vertical_input + ")(" + transform.position.x + ", " + transform.position.y + ", " + transform.position.z + ")");
-            //Vector3 move = new Vector3(horizontal_input, 0, vertical_input);
-            //move = move * Time.deltaTime * Speed;
-            //_controller.Move(move);
-            //if (move != Vector3.zero)
-            //    transform.forward = move;
-
-
-            if (_controller.isGrounded)
+            if (mouse0Button)
             {
-                // We are grounded, so recalculate
-                // move direction directly from axes
-
-                moveDirection = new Vector3(horizontal_input, 0.0f, vertical_input);
-                moveDirection = transform.TransformDirection(moveDirection);
-                moveDirection = moveDirection * Speed;
-
-                //if (Input.GetButton("Jump"))
-                //{
-                //    moveDirection.y = jumpSpeed;
-                //}
+                Ray ray = Camera.main.ScreenPointToRay(new Vector3(mouseX, mouseY, 0));
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit, 100))
+                {
+                    _agent.destination = hit.point;
+                }
+                mouse0Button = false; // consume mouse click
             }
-
-            // Apply gravity
-            moveDirection.y = moveDirection.y - (Gravity * Time.deltaTime);
-
-            // Move the controller
-            _controller.Move(moveDirection * Time.deltaTime);
         }
 
         private void OnPlayerInputUpdated(PlayerInput.Update update)
         {
-            if(update.Horizontal.HasValue)
+            if(update.MouseX.HasValue)
             {
-                horizontal_input = update.Horizontal;
+                mouseX = update.MouseX;
             }
 
-            if (update.Vertical.HasValue)
+            if (update.MouseY.HasValue)
             {
-                vertical_input = update.Vertical;
+                mouseY = update.MouseY;
+            }
+
+            if (update.MouseBtn0.HasValue)
+            {
+                mouse0Button = update.MouseBtn0.Value;
             }
         }
     }

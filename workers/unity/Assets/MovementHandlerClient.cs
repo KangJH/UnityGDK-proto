@@ -1,36 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
+
 public class MovementHandlerClient : MonoBehaviour
 {
-    public float Speed;
-    public float Gravity;
-    private CharacterController _controller;
-    private Vector3 moveDirection = Vector3.zero;
+    private NavMeshAgent _agent;
     private void OnEnable()
     {
-        _controller = GetComponent<CharacterController>();
-        // prevMove = Vector3.zero;
+        _agent = GetComponent<NavMeshAgent>();
     }
 
     void Update()
     {
-        if (_controller.isGrounded)
+        if (Input.GetMouseButtonDown(0))
         {
-            // We are grounded, so recalculate
-            // move direction directly from axes
-
-            moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
-            moveDirection = transform.TransformDirection(moveDirection);
-            moveDirection = moveDirection * Speed;
-
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, 100))
+            {
+                _agent.destination = hit.point;
+            }
         }
-
-        // Apply gravity
-        moveDirection.y = moveDirection.y - (Gravity * Time.deltaTime);
-
-        // Move the controller
-        _controller.Move(moveDirection * Time.deltaTime);
     }
 }
 

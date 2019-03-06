@@ -3,7 +3,8 @@ package player;
 component PlayerInput
 {
     id = 12001;
-    float horizontal = 1;
-    float vertical = 2;
-    bool running = 3;
+    float mouse_x = 1;
+    float mouse_y = 2;
+    bool mouse_btn0 = 3;
+	bool mouse_btn1 = 4;
 }

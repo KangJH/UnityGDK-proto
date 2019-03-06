@@ -26,7 +26,7 @@ namespace ProtoGame
             var entityTemplate = new EntityTemplate();
 
             entityTemplate.AddComponent(new Position.Snapshot(), WorkerUtils.UnityGameLogic);
-            entityTemplate.AddComponent(new Metadata.Snapshot { EntityType = "Plane" }, WorkerUtils.UnityGameLogic);
+            entityTemplate.AddComponent(new Metadata.Snapshot { EntityType = "Low_Poly_Boat_Yard" }, WorkerUtils.UnityGameLogic);
             entityTemplate.AddComponent(new Persistence.Snapshot(), WorkerUtils.UnityGameLogic);
             entityTemplate.SetReadAccess(WorkerUtils.UnityGameLogic, WorkerUtils.UnityClient);
             entityTemplate.SetComponentWriteAccess(EntityAcl.ComponentId, WorkerUtils.UnityGameLogic);

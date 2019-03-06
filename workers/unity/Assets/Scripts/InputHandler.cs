@@ -12,37 +12,27 @@ namespace ProtoGame
     public class InputHandler : MonoBehaviour
     {
         [Require] private PlayerInput.Requirable.Writer playerInput;
-        //private CharacterController _controller;
 
         void OnEnable()
         {
-            //_controller = GetComponent<CharacterController>();
-            Debug.Log("InputHandler start");
         }
 
         void Update()
         {
             if(playerInput != null)
             {
-                playerInput.Send(new PlayerInput.Update
+                if(Input.GetMouseButtonDown(0) || Input.GetMouseButtonUp(0) ||
+                   Input.GetMouseButtonDown(1) || Input.GetMouseButtonUp(1))
                 {
-                    Horizontal = new Option<float>(Input.GetAxis("Horizontal")),
-                    Vertical = new Option<float>(Input.GetAxis("Vertical"))
-                });
-                //Debug.Log("User Updated.(" + Input.GetAxis("Horizontal") + ", " + Input.GetAxis("Vertical") + ")");
-
+                    playerInput.Send(new PlayerInput.Update
+                    {
+                        MouseX = new Option<float>(Input.mousePosition.x),
+                        MouseY = new Option<float>(Input.mousePosition.y),
+                        MouseBtn0 = new Option<BlittableBool>(Input.GetMouseButtonDown(0)),
+                        MouseBtn1 = new Option<BlittableBool>(Input.GetMouseButtonDown(1))
+                    });
+                }
             }
-            /* var workerSystem = World.GetExistingManager<WorkerSystem>();
-
-             workerSystem.LogDispatcher.HandleLog(LogType.Error, new LogEvent(
-                     "InputHandler Update.")
-                 .WithField("User Input_H", Input.GetAxis("Horizontal"))
-                 .WithField("User Input_V", Input.GetAxis("Vertical"))
-                 );*/
-            //Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-            //_controller.Move(move * Time.deltaTime * Speed);
-            //if (move != Vector3.zero)
-            //    transform.forward = move;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Improbable;
 using Improbable.Gdk.Core;
 using Improbable.Gdk.GameObjectRepresentation;
 
@@ -21,16 +22,17 @@ namespace ProtoGame
         {
             if(playerInput != null)
             {
-                if(Input.GetMouseButtonDown(0) || Input.GetMouseButtonUp(0) ||
-                   Input.GetMouseButtonDown(1) || Input.GetMouseButtonUp(1))
+                if(Input.GetMouseButtonDown(0))
                 {
-                    playerInput.Send(new PlayerInput.Update
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    RaycastHit hit;
+                    if (Physics.Raycast(ray, out hit, 100))
                     {
-                        MouseX = new Option<float>(Input.mousePosition.x),
-                        MouseY = new Option<float>(Input.mousePosition.y),
-                        MouseBtn0 = new Option<BlittableBool>(Input.GetMouseButtonDown(0)),
-                        MouseBtn1 = new Option<BlittableBool>(Input.GetMouseButtonDown(1))
-                    });
+                        playerInput.Send(new PlayerInput.Update
+                        {
+                            TargetPosition = new Option<Vector3f>(Vector3f.FromUnityVector(hit.point)),
+                        });
+                    }
                 }
             }
         }

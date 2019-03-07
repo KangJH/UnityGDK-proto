@@ -1,10 +1,9 @@
 package player;
 
+import "improbable/vector3.schema";
+
 component PlayerInput
 {
     id = 12001;
-    float mouse_x = 1;
-    float mouse_y = 2;
-    bool mouse_btn0 = 3;
-	bool mouse_btn1 = 4;
+    improbable.Vector3f target_position = 1;
 }

@@ -14,45 +14,34 @@ namespace ProtoGame
     {
         [Require] private PlayerInput.Requirable.Reader playerInput;
         [Require] private Position.Requirable.Writer authority;
-        private float mouseX, mouseY;
-        private bool mouse0Button, mouse1Button;
+        private Vector3 targetPos;
+        private bool tragetUpdated;
         private NavMeshAgent _agent;
         private void OnEnable()
         {
             playerInput.ComponentUpdated += OnPlayerInputUpdated;
             _agent = GetComponent<NavMeshAgent>();
+
+            tragetUpdated = false;
         }
 
         void Update()
         {
-            if (mouse0Button)
+            if (tragetUpdated)
             {
-                Ray ray = Camera.main.ScreenPointToRay(new Vector3(mouseX, mouseY, 0));
-                RaycastHit hit;
-                if (Physics.Raycast(ray, out hit, 100))
-                {
-                    _agent.destination = hit.point;
-                }
-                mouse0Button = false; // consume mouse click
+                _agent.destination = targetPos;
+                tragetUpdated = false; // Consume target information
             }
         }
 
         private void OnPlayerInputUpdated(PlayerInput.Update update)
         {
-            if(update.MouseX.HasValue)
+            if (update.TargetPosition.HasValue)
             {
-                mouseX = update.MouseX;
+                targetPos = update.TargetPosition.Value.ToUnityVector();
+                tragetUpdated = true;
             }
-
-            if (update.MouseY.HasValue)
-            {
-                mouseY = update.MouseY;
-            }
-
-            if (update.MouseBtn0.HasValue)
-            {
-                mouse0Button = update.MouseBtn0.Value;
-            }
+            
         }
     }
 }

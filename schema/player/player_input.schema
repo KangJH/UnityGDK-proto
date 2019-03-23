@@ -1,9 +1,18 @@
 package player;
 
 import "improbable/vector3.schema";
+import "from_gdk_packages/com.improbable.gdk.core/common.schema";
+
+type AttackInfo
+{
+	EntityId target = 1;
+	improbable.Vector3f attacker_position = 2;
+	float attack_distance = 3;
+}
 
 component PlayerInput
 {
     id = 12001;
     improbable.Vector3f target_position = 1;
+	event AttackInfo attack;
 }

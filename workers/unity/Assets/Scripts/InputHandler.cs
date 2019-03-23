@@ -13,7 +13,9 @@ namespace ProtoGame
     public class InputHandler : MonoBehaviour
     {
         [Require] private PlayerInput.Requirable.Writer playerInput;
-
+        //[Require] private PlayerInput.Requirable.CommandRequestSender playerInputCommandSender;
+        private GameObject targetObject;
+        public float AttachDistance = 1.0f;
         void OnEnable()
         {
         }
@@ -26,15 +28,54 @@ namespace ProtoGame
                 {
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                     RaycastHit hit;
-                    if (Physics.Raycast(ray, out hit, 100))
+                    if (Physics.Raycast(ray, out hit))
                     {
-                        playerInput.Send(new PlayerInput.Update
+                        // The clicked object is Player, track the other player's target
+                        if (hit.transform.root.tag == "Player")
                         {
-                            TargetPosition = new Option<Vector3f>(Vector3f.FromUnityVector(hit.point)),
-                        });
+                            targetObject = hit.transform.gameObject;
+                        }
+                        else
+                        {
+                            SendTargetPosition(hit.point);
+                        }
+                    }
+                }
+
+                if (targetObject != null)
+                {
+                    var distance = Vector3.Distance(transform.position, targetObject.transform.position);
+                    if(distance <= AttachDistance)
+                    {
+                        var spatialEntity = targetObject.transform.root.GetComponent<SpatialOSComponent>();
+                        if (spatialEntity != null)
+                        {
+                            
+                           // playerInputCommandSender.SendAttackRequest(spatialEntity.SpatialEntityId, new AttackInfo(0, Vector3f.FromUnityVector(transform.position), AttachDistance));
+
+                            playerInput.SendAttack(new AttackInfo
+                            {
+                                Target = spatialEntity.SpatialEntityId,
+                                AttackDistance = AttachDistance,
+                                AttackerPosition = new Option<Vector3f>(Vector3f.FromUnityVector(transform.position))
+                            });
+                            Debug.Log("Attack");
+                        }
+                        targetObject = null;
+                    }
+                    else
+                    {
+                        SendTargetPosition(targetObject.transform.position);
                     }
                 }
             }
+        }
+        void SendTargetPosition(Vector3 pos)
+        {
+            playerInput.Send(new PlayerInput.Update
+            {
+                TargetPosition = new Option<Vector3f>(Vector3f.FromUnityVector(pos)),
+            });
         }
     }
 }

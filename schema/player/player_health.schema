@@ -1,0 +1,8 @@
+package player;
+
+
+component PlayerHealth
+{
+    id = 12003;
+	int32 health = 1;
+}

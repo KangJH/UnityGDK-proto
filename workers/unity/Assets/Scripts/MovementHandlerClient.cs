@@ -19,6 +19,8 @@ public class MovementHandlerClient : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 100))
             {
+                
+                Debug.Log(hit.transform.root.tag);
                 _agent.destination = hit.point;
             }
         }

@@ -14,7 +14,7 @@ namespace ProtoGame
     {
         private async void Start()
         {
-            PlayerLifecycleConfig.CreatePlayerEntityTemplate = CreatePlayerEntityTemplate;
+            PlayerLifecycleConfig.CreatePlayerEntityTemplate = EntityCreationTemplate.CreatePlayerEntityTemplate;
             await Connect(WorkerUtils.UnityGameLogic, new ForwardingDispatcher()).ConfigureAwait(false);
         }
 
@@ -27,27 +27,5 @@ namespace ProtoGame
             TransformSynchronizationHelper.AddServerSystems(Worker.World);
         }
 
-        private static EntityTemplate CreatePlayerEntityTemplate(string workerId, Vector3f position)
-        {
-            //Decide spawn position
-            GameObject[] playerSpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
-            Vector3 spawnPos = playerSpawnPoints[Random.Range(0, playerSpawnPoints.Length - 1)].transform.position;
-            
-            //Setup SpatialOS entity and components
-            var clientAttribute = $"workerId:{workerId}";
-            var serverAttribute = WorkerUtils.UnityGameLogic;
-
-            var template = new EntityTemplate();
-            template.AddComponent(new Position.Snapshot { Coords = new Coordinates(spawnPos.x, spawnPos.y, spawnPos.z) }, serverAttribute);
-            template.AddComponent(new Metadata.Snapshot { EntityType = "Player" }, serverAttribute);
-            template.AddComponent(new PlayerInput.Snapshot { TargetPosition = Vector3f.Zero }, clientAttribute);
-            TransformSynchronizationHelper.AddTransformSynchronizationComponents(template, serverAttribute);
-            PlayerLifecycleHelper.AddPlayerLifecycleComponents(template, workerId, clientAttribute, serverAttribute);
-
-            template.SetReadAccess(WorkerUtils.UnityClient, /*AndroidClientWorkerConnector.WorkerType, iOSClientWorkerConnector.WorkerType,*/ serverAttribute);
-            template.SetComponentWriteAccess(EntityAcl.ComponentId, serverAttribute);
-
-            return template;
-        }
     }
 }

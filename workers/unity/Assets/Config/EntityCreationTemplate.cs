@@ -4,10 +4,11 @@ using UnityEngine;
 using Improbable;
 using Improbable.Gdk.Core;
 using Improbable.Gdk.Core.Commands;
-using Improbable.Gdk.GameObjectRepresentation;
+using Improbable.Gdk;
 using Improbable.Worker.CInterop;
 using Improbable.Gdk.TransformSynchronization;
 using Improbable.Gdk.PlayerLifecycle;
+using Improbable.Gdk.Subscriptions;
 
 using Player;
 
@@ -15,13 +16,10 @@ namespace ProtoGame
 {
     public class EntityCreationTemplate : MonoBehaviour
     {
-        [Require] private WorldCommands.Requirable.WorldCommandRequestSender commandSender;
-        [Require] private WorldCommands.Requirable.WorldCommandResponseHandler responseHandler;
+        //[Require] private WorldCommandSender commandSender;
 
         void OnEnable()
         {
-            // Register callback for listening to any incoming create entity command responses for this entity
-            responseHandler.OnCreateEntityResponse += OnCreateEntityResponse;
         }
 
         static public EntityTemplate CreateLandEntity()
@@ -36,11 +34,11 @@ namespace ProtoGame
 
             // send create entity command request without reserving an entity id
             // The SpatialOS Runtime will automatically assign a SpatialOS entity id to the newly created entity
-            //commandSender.CreateEntity(entityTemplate);
+            //commandSender.SendCreateEntityCommand(new WorldCommands.CreateEntity.Request(entityTemplate), OnCreateEntityResponse);
             return entityTemplate;
         }
 
-        static public EntityTemplate CreatePlayerEntityTemplate(string workerId, Vector3f position)
+        static public EntityTemplate CreatePlayerEntityTemplate(string workerId, byte[] playerCreationArguments)
         {
             //Decide spawn position
             GameObject[] playerSpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
@@ -64,7 +62,7 @@ namespace ProtoGame
             return template;
         }
 
-        void OnCreateEntityResponse(WorldCommands.CreateEntity.ReceivedResponse response)
+        private void OnCreateEntityResponse(WorldCommands.CreateEntity.ReceivedResponse response)
         {
             if (response.StatusCode == StatusCode.Success)
             {
@@ -76,6 +74,5 @@ namespace ProtoGame
                 // handle failure
             }
         }
-
     }
 }

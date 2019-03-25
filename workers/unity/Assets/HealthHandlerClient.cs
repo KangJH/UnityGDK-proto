@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-using Improbable.Gdk.GameObjectRepresentation;
+using Improbable.Gdk.Subscriptions;
 
 using Player;
 
 public class HealthHandlerClient : MonoBehaviour
 {
-    [Require] private PlayerHealth.Requirable.Reader playerHealth;
+    [Require] private PlayerHealthReader playerHealth;
 
     public Slider HealthUI;
     // Start is called before the first frame update
     void Start()
     {
-        playerHealth.ComponentUpdated += OnHealthUpdated;
+        playerHealth.OnUpdate += OnHealthUpdated;
     }
 
     private void OnEnable()

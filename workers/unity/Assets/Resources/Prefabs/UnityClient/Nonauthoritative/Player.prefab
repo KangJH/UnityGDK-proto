@@ -361,7 +361,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ReceiveStrategies:
-  - {fileID: 11400000, guid: e8a08ac7c2bf2b046a22d5c4f83808f6, type: 2}
+  - {fileID: 11400000, guid: 006333cbae8442c44a8a8f8e212e169e, type: 2}
   SendStrategies: []
   SetKinematicWhenNotAuthoritative: 1
 --- !u!114 &4846670118680640988

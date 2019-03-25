@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Improbable;
 using Improbable.Gdk.Core;
-using Improbable.Gdk.GameObjectRepresentation;
+using Improbable.Gdk.Subscriptions;
 
 using Player;
 
@@ -12,7 +12,7 @@ namespace ProtoGame
     //[WorkerType(WorkerUtils.UnityClient)]
     public class InputHandler : MonoBehaviour
     {
-        [Require] private PlayerInput.Requirable.Writer playerInput;
+        [Require] private PlayerInputWriter playerInput;
         //[Require] private PlayerInput.Requirable.CommandRequestSender playerInputCommandSender;
         private GameObject targetObject;
         public float AttachDistance = 1.0f;
@@ -75,22 +75,22 @@ namespace ProtoGame
 
         void SendTargetPosition(Vector3 pos)
         {
-            playerInput.Send(new PlayerInput.Update
+            playerInput.SendUpdate(new PlayerInput.Update
             {
                 TargetPosition = new Option<Vector3f>(Vector3f.FromUnityVector(pos)),
             });
         }
 
-        public void SendAttack(float distance, Vector3 pos)
+        public void SendAttack(float attackDistance, Vector3 attckerPos)
         {
-            var spatialEntity = targetObject.transform.root.GetComponent<SpatialOSComponent>();
+            var spatialEntity = targetObject.transform.root.GetComponent<LinkedEntityComponent>();
             if(spatialEntity != null)
             {
-                playerInput.SendAttack(new AttackInfo
+                playerInput.SendAttackEvent(new AttackInfo
                 {
-                    Target = spatialEntity.SpatialEntityId,
-                    AttackDistance = distance,
-                    AttackerPosition = new Option<Vector3f>(Vector3f.FromUnityVector(pos))
+                    Target = spatialEntity.EntityId,
+                    AttackDistance = attackDistance,
+                    AttackerPosition = new Option<Vector3f>(Vector3f.FromUnityVector(attckerPos))
                 });
 
             }

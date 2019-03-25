@@ -2,7 +2,6 @@
 using Improbable.Gdk.PlayerLifecycle;
 using Improbable.Worker.CInterop;
 using Improbable.Gdk.GameObjectCreation;
-using Improbable.Gdk.GameObjectRepresentation;
 using Improbable.Gdk.TransformSynchronization;
 
 using UnityEngine;
@@ -42,7 +41,7 @@ namespace ProtoGame
         {
             PlayerLifecycleHelper.AddClientSystems(Worker.World);
             //GameObjectCreationHelper.EnableStandardGameObjectCreation(Worker.World);
-            GameObjectRepresentationHelper.AddSystems(Worker.World);
+           // GameObjectRepresentationHelper.AddSystems(Worker.World);
             TransformSynchronizationHelper.AddClientSystems(Worker.World);
 
             // Set the Worker gameObject to the ClientWorker so it can access PlayerCreater reader/writers

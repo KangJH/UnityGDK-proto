@@ -3,7 +3,7 @@ using Improbable.Gdk.Core;
 using Improbable.Gdk.GameObjectCreation;
 using Improbable.Gdk.PlayerLifecycle;
 using Improbable.Gdk.TransformSynchronization;
-using Improbable.Gdk.GameObjectRepresentation;
+using Improbable.Gdk;
 
 using Player;
 
@@ -23,7 +23,7 @@ namespace ProtoGame
             Worker.World.GetOrCreateManager<MetricSendSystem>();
             PlayerLifecycleHelper.AddServerSystems(Worker.World);
             GameObjectCreationHelper.EnableStandardGameObjectCreation(Worker.World);
-            GameObjectRepresentationHelper.AddSystems(Worker.World);
+            //GameObjectRepresentationHelper.AddSystems(Worker.World);
             TransformSynchronizationHelper.AddServerSystems(Worker.World);
         }
     }

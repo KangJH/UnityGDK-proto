@@ -40,9 +40,6 @@ namespace ProtoGame
         protected override void HandleWorkerConnectionEstablished()
         {
             PlayerLifecycleHelper.AddClientSystems(Worker.World);
-            //GameObjectCreationHelper.EnableStandardGameObjectCreation(Worker.World);
-           // GameObjectRepresentationHelper.AddSystems(Worker.World);
-            TransformSynchronizationHelper.AddClientSystems(Worker.World);
 
             // Set the Worker gameObject to the ClientWorker so it can access PlayerCreater reader/writers
             var fallback = new GameObjectCreatorFromMetadata(Worker.WorkerType, Worker.Origin, Worker.LogDispatcher);
@@ -50,6 +47,8 @@ namespace ProtoGame
                 Worker.World,
                 new AdvancedEntityPipeline(Worker, AuthPlayer, NonAuthPlayer, fallback),
                 gameObject);
+
+            TransformSynchronizationHelper.AddClientSystems(Worker.World);
 
             JoinButton.GetComponent<Button>().interactable = true;
             JoinButton.SetActive(false);

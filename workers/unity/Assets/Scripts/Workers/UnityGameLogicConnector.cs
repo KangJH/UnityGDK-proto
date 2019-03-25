@@ -23,7 +23,6 @@ namespace ProtoGame
             Worker.World.GetOrCreateManager<MetricSendSystem>();
             PlayerLifecycleHelper.AddServerSystems(Worker.World);
             GameObjectCreationHelper.EnableStandardGameObjectCreation(Worker.World);
-            //GameObjectRepresentationHelper.AddSystems(Worker.World);
             TransformSynchronizationHelper.AddServerSystems(Worker.World);
         }
     }

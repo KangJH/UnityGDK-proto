@@ -47,7 +47,9 @@ namespace ProtoGame
                     var distance = Vector3.Distance(transform.position, targetObject.transform.position);
                     if(distance <= AttachDistance)
                     {
-                        var spatialEntity = targetObject.transform.root.GetComponent<SpatialOSComponent>();
+                        SendAttack(AttachDistance, transform.position);
+                        //targetObject.GetComponent<InputHandler>().SendAttack(AttachDistance, transform.position);
+                        /*var spatialEntity = targetObject.transform.root.GetComponent<SpatialOSComponent>();
                         if (spatialEntity != null)
                         {
                             
@@ -60,7 +62,7 @@ namespace ProtoGame
                                 AttackerPosition = new Option<Vector3f>(Vector3f.FromUnityVector(transform.position))
                             });
                             Debug.Log("Attack");
-                        }
+                        }*/
                         targetObject = null;
                     }
                     else
@@ -70,12 +72,28 @@ namespace ProtoGame
                 }
             }
         }
+
         void SendTargetPosition(Vector3 pos)
         {
             playerInput.Send(new PlayerInput.Update
             {
                 TargetPosition = new Option<Vector3f>(Vector3f.FromUnityVector(pos)),
             });
+        }
+
+        public void SendAttack(float distance, Vector3 pos)
+        {
+            var spatialEntity = targetObject.transform.root.GetComponent<SpatialOSComponent>();
+            if(spatialEntity != null)
+            {
+                playerInput.SendAttack(new AttackInfo
+                {
+                    Target = spatialEntity.SpatialEntityId,
+                    AttackDistance = distance,
+                    AttackerPosition = new Option<Vector3f>(Vector3f.FromUnityVector(pos))
+                });
+
+            }
         }
     }
 }

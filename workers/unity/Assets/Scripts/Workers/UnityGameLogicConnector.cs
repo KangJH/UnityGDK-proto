@@ -26,6 +26,5 @@ namespace ProtoGame
             GameObjectRepresentationHelper.AddSystems(Worker.World);
             TransformSynchronizationHelper.AddServerSystems(Worker.World);
         }
-
     }
 }

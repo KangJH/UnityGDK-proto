@@ -7,13 +7,13 @@ using Player;
 
 public class HealthHandlerServer : MonoBehaviour
 {
-    [Require] private PlayerInputReader playerInputReader;
+    [Require] private PlayerHealthCommandReceiver commandReceiver;
     [Require] private PlayerHealthWriter playerHealth;
 
     // Start is called before the first frame update
     void OnEnable()
     {
-        playerInputReader.OnAttackEvent += OnAttack;
+        commandReceiver.OnDamageRequestReceived += OnDamage;
     }
 
     // Update is called once per frame
@@ -22,15 +22,15 @@ public class HealthHandlerServer : MonoBehaviour
         
     }
 
-    void OnAttack(AttackInfo info)
+    void OnDamage(PlayerHealth.Damage.ReceivedRequest request)
     {
         // retrieve information about the request
         var spatialEntity = GetComponent<LinkedEntityComponent>();
-        Debug.Log("OnAttack(" + spatialEntity.EntityId + ", " + info.Target + ")");
-        if (spatialEntity != null && spatialEntity.EntityId == info.Target)
+        Debug.Log("OnDamage(" + spatialEntity.EntityId + ", " + request.EntityId + ")");
+        if (spatialEntity != null && spatialEntity.EntityId == request.EntityId)
         {
-            var distance = Vector3.Distance(info.AttackerPosition.ToUnityVector(), transform.position);
-            if (distance <= info.AttackDistance)
+            var distance = Vector3.Distance(request.Payload.AttackerPosition.ToUnityVector(), transform.position);
+            if (distance <= request.Payload.AttackDistance)
             {
                 int amount = playerHealth.Data.Health - 10;
                 playerHealth.SendUpdate(new PlayerHealth.Update

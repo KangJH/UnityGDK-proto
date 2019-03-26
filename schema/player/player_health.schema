@@ -1,8 +1,18 @@
 package player;
 
+import "improbable/vector3.schema";
+
+type DamageRequest
+{
+	improbable.Vector3f attacker_position = 2;
+	float attack_distance = 3;
+}
+
+type DamageResponse {}
 
 component PlayerHealth
 {
     id = 12003;
 	int32 health = 1;
+	command DamageResponse damage(DamageRequest);
 }

@@ -13,6 +13,7 @@ namespace ProtoGame
     public class InputHandler : MonoBehaviour
     {
         [Require] private PlayerInputWriter playerInput;
+        [Require] private PlayerHealthCommandSender commandSender;
         //[Require] private PlayerInput.Requirable.CommandRequestSender playerInputCommandSender;
         private GameObject targetObject;
         public float attackDistance = 1.0f;
@@ -70,16 +71,17 @@ namespace ProtoGame
 
         public void SendAttack(GameObject target, float attackDistance, Vector3 attckerPos)
         {
-            var spatialEntity = target.GetComponent<LinkedEntityComponent>();
-            if(spatialEntity != null)
+            if (commandSender != null)
             {
-                playerInput.SendAttackEvent(new AttackInfo
+                var spatialEntity = target.GetComponent<LinkedEntityComponent>();
+                if (spatialEntity != null)
                 {
-                    Target = new Option<EntityId>(spatialEntity.EntityId),
-                    AttackDistance = new Option<float>(attackDistance),
-                    AttackerPosition = new Option<Vector3f>(Vector3f.FromUnityVector(attckerPos))
-                });
-
+                    commandSender.SendDamageCommand(spatialEntity.EntityId, new DamageRequest
+                    {
+                        AttackDistance = new Option<float>(attackDistance),
+                        AttackerPosition = new Option<Vector3f>(Vector3f.FromUnityVector(attckerPos))
+                    });
+                }
             }
         }
     }

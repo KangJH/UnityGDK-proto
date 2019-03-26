@@ -1,4 +1,6 @@
-﻿using Improbable;
+﻿using System;
+
+using Improbable;
 using Improbable.Gdk.Core;
 using Improbable.Gdk.GameObjectCreation;
 using Improbable.Worker;
@@ -19,6 +21,7 @@ public class AdvancedEntityPipeline : IEntityGameObjectCreator
     private readonly IEntityGameObjectCreator fallback;
     private readonly string workerIdAttribute;
     private readonly Worker worker;
+
 
     public AdvancedEntityPipeline(Worker worker, string authPlayer, string nonAuthPlayer,
         IEntityGameObjectCreator fallback)
@@ -57,10 +60,17 @@ public class AdvancedEntityPipeline : IEntityGameObjectCreator
                 var position = positionComp.Coords.ToUnityVector();
 
                 var prefab = authority ? cachedAuthPlayer : cachedNonAuthPlayer;
-                var gameObject = Object.Instantiate(prefab, position, Quaternion.identity);
+                var gameObject = UnityEngine.Object.Instantiate(prefab, position, Quaternion.identity);
 
                 gameObject.name = GetGameObjectName(prefab, entity, worker);
-                linker.LinkGameObjectToSpatialOSEntity(entity.SpatialOSEntityId, gameObject);
+
+                Type[] componentsToAdd =
+                {
+                    typeof(UnityEngine.Transform),
+                    typeof(Rigidbody),
+                    typeof(MeshRenderer)
+                };
+                linker.LinkGameObjectToSpatialOSEntity(entity.SpatialOSEntityId, gameObject, componentsToAdd);
                 return;
             }
         }

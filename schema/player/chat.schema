@@ -1,0 +1,26 @@
+package player;
+
+type Receiver {
+	EntityId single_target = 1;
+	int32 group_id = 2;
+	bool all = 3; 
+}
+
+type MessageReq {
+	Receiver receiver = 1;
+	string message = 2;
+}
+
+type MessageRes {
+}
+
+type MessageEvent {
+	string message = 1;
+}
+
+component Chat {
+    // Component ID, unique within the project
+    id = 12004;
+	command MessageRes outgoing_message(MessageReq);
+	event MessageEvent incoming_message;
+}

@@ -17,9 +17,25 @@ namespace ProtoGame
     public class EntityCreationTemplate : MonoBehaviour
     {
         //[Require] private WorldCommandSender commandSender;
-
         void OnEnable()
         {
+        }
+
+        static public EntityTemplate CreateChatManagerEntity()
+        {
+            var entityTemplate = new EntityTemplate();
+
+            entityTemplate.AddComponent(new Position.Snapshot(), WorkerUtils.ChatManager);
+            entityTemplate.AddComponent(new Metadata.Snapshot { EntityType = "chatWorker" }, WorkerUtils.ChatManager);
+            entityTemplate.AddComponent(new Persistence.Snapshot(), WorkerUtils.ChatManager);
+            entityTemplate.AddComponent(new Chat.Snapshot(), WorkerUtils.ChatManager);
+            entityTemplate.SetReadAccess(WorkerUtils.ChatManager, WorkerUtils.UnityClient);
+            entityTemplate.SetComponentWriteAccess(EntityAcl.ComponentId, WorkerUtils.ChatManager);
+
+            // send create entity command request without reserving an entity id
+            // The SpatialOS Runtime will automatically assign a SpatialOS entity id to the newly created entity
+            //commandSender.SendCreateEntityCommand(new WorldCommands.CreateEntity.Request(entityTemplate));
+            return entityTemplate;
         }
 
         static public EntityTemplate CreateLandEntity()
@@ -53,16 +69,17 @@ namespace ProtoGame
             template.AddComponent(new Metadata.Snapshot { EntityType = "Player" }, serverAttribute);
             template.AddComponent(new PlayerInput.Snapshot { TargetPosition = Vector3f.Zero }, clientAttribute);
             template.AddComponent(new PlayerHealth.Snapshot { Health = 100 }, serverAttribute);
+            template.AddComponent(new Chat.Snapshot(), WorkerUtils.ChatManager);
             TransformSynchronizationHelper.AddTransformSynchronizationComponents(template, serverAttribute);
             PlayerLifecycleHelper.AddPlayerLifecycleComponents(template, workerId, clientAttribute, serverAttribute);
 
-            template.SetReadAccess(WorkerUtils.UnityClient, /*AndroidClientWorkerConnector.WorkerType, iOSClientWorkerConnector.WorkerType,*/ serverAttribute);
+            template.SetReadAccess(WorkerUtils.UnityClient, WorkerUtils.ChatManager, /*AndroidClientWorkerConnector.WorkerType, iOSClientWorkerConnector.WorkerType,*/ serverAttribute);
             template.SetComponentWriteAccess(EntityAcl.ComponentId, serverAttribute);
 
             return template;
         }
 
-        private void OnCreateEntityResponse(WorldCommands.CreateEntity.ReceivedResponse response)
+        static private void OnCreateEntityResponse(WorldCommands.CreateEntity.ReceivedResponse response)
         {
             if (response.StatusCode == StatusCode.Success)
             {

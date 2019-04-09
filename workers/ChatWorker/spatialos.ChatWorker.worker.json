@@ -1,0 +1,43 @@
+{
+    "build": {
+        "tasks": []
+    },
+    "bridge": {
+        "worker_attribute_set": {
+            "attributes": [
+                "ChatWorker"
+            ]
+        },
+        "entity_interest": {
+            "range_entity_interest": {
+                "radius": 10
+            }
+        },
+        "component_delivery": {
+            "default": "RELIABLE_ORDERED",
+            "checkout_all_initially": true
+        }
+    },
+    "managed": {
+        "windows": {
+            "artifact_name": "ChatWorker@Windows.zip",
+            "command": "ChatWorker.exe",
+            "arguments": [
+                "${IMPROBABLE_RECEPTIONIST_HOST}",
+                "${IMPROBABLE_RECEPTIONIST_PORT}",
+                "${IMPROBABLE_WORKER_ID}"
+            ]
+        }
+
+    },
+    "external": {
+        "default": {
+            "run_type": "EXECUTABLE",
+            "windows": {
+                "command": "bin/ChatWorker.exe"
+
+            }
+        }
+
+    }
+}

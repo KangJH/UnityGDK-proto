@@ -6,6 +6,7 @@ TagManager:
   tags:
   - AICars
   - SpawnPoint
+  - ChatManager
   layers:
   - Default
   - TransparentFX

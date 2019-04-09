@@ -4,6 +4,7 @@ namespace ProtoGame
     {
         public const string UnityClient = "UnityClient";
         public const string UnityGameLogic = "UnityGameLogic";
+        public const string ChatManager = "ChatWorker";
 
         public const string SimulatedPlayerCoorindator = "SimulatedPlayerCoordinator";
         public const string SimulatedPlayer = "SimulatedPlayer";

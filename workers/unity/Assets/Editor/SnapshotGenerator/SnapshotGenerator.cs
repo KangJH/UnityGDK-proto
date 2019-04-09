@@ -30,6 +30,7 @@ namespace ProtoGame.Editor
             AddPlayerSpawner(snapshot);
 
             snapshot.AddEntity(EntityCreationTemplate.CreateLandEntity());
+            //snapshot.AddEntity(EntityCreationTemplate.CreateChatManagerEntity());
             return snapshot;
         }
 

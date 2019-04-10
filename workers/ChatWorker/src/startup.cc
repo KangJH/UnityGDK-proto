@@ -33,7 +33,7 @@ const std::string kLoggerName = "startup.cc";
 const std::uint32_t kGetOpListTimeoutInMilliseconds = 100;
 const std::uint32_t kCommandTimeoutMilliseconds = 500;
 
-void TransmitMessage(worker::Connection& connection, worker::EntityId receiverID, std::string& message);
+void TransmitMessage(worker::Connection& connection, worker::EntityId senderID, worker::EntityId receiverID, std::string& message);
 
 std::string GetRandomCharacters(size_t count) {
     const auto randchar = []() -> char {
@@ -66,7 +66,7 @@ worker::EntityId GetChatManager(const worker::View& dispatcher)
 		if (!metadata.empty())
 		{
 			std::string entity_type = (*metadata).entity_type();
-			if (entity_type.compare("chatManager") == 0)
+			if (entity_type.compare("chatWorker") == 0)
 			{
 				ret = entity_id;
 				break;
@@ -140,6 +140,7 @@ int main(int argc, char** argv) {
 	//Register callback for component
 	view.OnCommandRequest<player::Chat::Commands::OutgoingMessage>([&](const worker::CommandRequestOp<player::Chat::Commands::OutgoingMessage>& op) {
 		auto message_receiver = op.Request.receiver();
+		auto sender = op.EntityId;
 		auto message = op.Request.message();
 		if (message_receiver.all())
 		{
@@ -149,7 +150,7 @@ int main(int argc, char** argv) {
 				worker::Entity& entity = entityData.second;
 				if (HasChatComponent(entity) && view.GetAuthority<player::Chat>(entity_id) == worker::Authority::kAuthoritative)
 				{
-					TransmitMessage(connection, entity_id, message);
+					TransmitMessage(connection, sender, entity_id, message);
 				}
 			}
 		}
@@ -161,7 +162,7 @@ int main(int argc, char** argv) {
 			}
 			else
 			{
-				TransmitMessage(connection, message_receiver.single_target(), message);
+				TransmitMessage(connection, sender, message_receiver.single_target(), message);
 			}
 		}
 		Logging::ApplicationLogger->Debug("[remote] Sender: " + std::to_string(op.EntityId));
@@ -204,10 +205,10 @@ int main(int argc, char** argv) {
     return 1;
 }
 
-void TransmitMessage(worker::Connection& connection, worker::EntityId receiverID, std::string& message)
+void TransmitMessage(worker::Connection& connection, worker::EntityId senderID, worker::EntityId receiverID, std::string& message)
 {
 	player::Chat::Update update;
-	player::MessageEvent event{ message };
+	player::MessageEvent event(senderID, message);
 	update.add_incoming_message(event);
 	connection.SendComponentUpdate<player::Chat>(receiverID, update);
 }

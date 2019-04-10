@@ -15,7 +15,8 @@ type MessageRes {
 }
 
 type MessageEvent {
-	string message = 1;
+	EntityId sender = 1;
+	string message = 2;
 }
 
 component Chat {

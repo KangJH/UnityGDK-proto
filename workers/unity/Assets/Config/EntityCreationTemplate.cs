@@ -21,23 +21,6 @@ namespace ProtoGame
         {
         }
 
-        static public EntityTemplate CreateChatManagerEntity()
-        {
-            var entityTemplate = new EntityTemplate();
-
-            entityTemplate.AddComponent(new Position.Snapshot(), WorkerUtils.ChatManager);
-            entityTemplate.AddComponent(new Metadata.Snapshot { EntityType = "chatWorker" }, WorkerUtils.ChatManager);
-            entityTemplate.AddComponent(new Persistence.Snapshot(), WorkerUtils.ChatManager);
-            entityTemplate.AddComponent(new Chat.Snapshot(), WorkerUtils.ChatManager);
-            entityTemplate.SetReadAccess(WorkerUtils.ChatManager, WorkerUtils.UnityClient);
-            entityTemplate.SetComponentWriteAccess(EntityAcl.ComponentId, WorkerUtils.ChatManager);
-
-            // send create entity command request without reserving an entity id
-            // The SpatialOS Runtime will automatically assign a SpatialOS entity id to the newly created entity
-            //commandSender.SendCreateEntityCommand(new WorldCommands.CreateEntity.Request(entityTemplate));
-            return entityTemplate;
-        }
-
         static public EntityTemplate CreateLandEntity()
         {
             var entityTemplate = new EntityTemplate();

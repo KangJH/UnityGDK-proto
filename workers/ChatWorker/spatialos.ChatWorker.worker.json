@@ -1,6 +1,50 @@
 {
     "build": {
-        "tasks": []
+        "tasks": [
+            {
+                "name": "Codegen",
+                "steps": [
+                    {
+                        "name": "C++",
+                        "command": "bash",
+                        "arguments": [ "./build_schema.sh" ]
+                    }
+                ]
+            },
+            {
+                "name": "build",
+                "steps": [
+                    {
+                        "name": "C++",
+                        "command": "bash",
+                        "arguments": [ "./build.sh" ]
+                    },
+                    {
+                        "name": "zip",
+                        "command": "spatial",
+                        "arguments": [ 
+                            "file",
+                            "zip",
+                            "--basePath=bin",
+                            "--output=../../build/assembly/worker/ChatWorker",
+                            "--worker_platform=windows",
+                            "ChatWorker.*"
+                        ]
+                    }
+
+                ]
+            },
+            {
+                "name": "clean",
+                "steps": [
+                    {
+                        "name": "Run make clean",
+                        "command": "base",
+                        "arguments": [ "./clean.sh" ]
+                    }
+                ]
+            }
+        ]
     },
     "bridge": {
         "worker_attribute_set": {

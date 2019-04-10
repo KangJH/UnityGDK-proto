@@ -1,9 +1,5 @@
 #
 bin/
-
-# CMake
-src/cmake_build/
-src/CMakeFiles/
-
-#
-src/improbable/
+generated/
+dependencies/
+cmake_build/

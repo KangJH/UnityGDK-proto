@@ -3,24 +3,20 @@
 #include <iostream>
 #include <chrono>
 #include <improbable/view.h>
-#include <improbable/ship/ShipControls.h>
 #include <chrono>
 #include <thread>
 #include <atomic>
 #include <mutex>
 #include <windows.h>
-#include "improbable/core/Rotation.h"
-#include "improbable/player/CommandsTest.h"
-#include "improbable/test/TestComponent.h"
 
 #include "Samples/SampleLogger.h"
 #include "Samples/SampleScheduler.h"
 
 #include "Samples/SpatialOSUtilitiesExamples.h"
 
-//#include "SpatialOSUtilities/EntityBuilder/EntityBuilder.h"
-//#include "SpatialOSUtilities/QuerySender/QuerySender.h"
-#include <improbable/chat/Chat.h>
+//#include "EntityBuilder/EntityBuilder.h"
+//#include "QuerySender/QuerySender.h"
+#include <player/Chat.h>
 
 
 using namespace improbable;
@@ -29,7 +25,7 @@ using Logging = SpatialOS::RequireExternal::ILogger;
 
 // Use this to make a worker::ComponentRegistry.
 // For example use worker::Components<improbable::Position, improbable::Metadata> to track these common components
-using MyComponents = worker::Components<EntityAcl, Metadata, Persistence, Position, chat::Chat>;
+using MyComponents = worker::Components<EntityAcl, Metadata, Persistence, Position, player::Chat>;
 
 // Constants and parameters
 const int ErrorExitStatus = 1;
@@ -55,7 +51,7 @@ std::string GetRandomCharacters(size_t count) {
 
 bool HasChatComponent(const worker::Entity& entity)
 {
-    worker::Option<const chat::Chat::Data&> chat = entity.Get<chat::Chat>();
+    worker::Option<const player::Chat::Data&> chat = entity.Get<player::Chat>();
     return !chat.empty();
 }
 
@@ -99,7 +95,7 @@ void PrintUsage()
 worker::Connection GetConnection(const std::vector<std::string>& inArguments, bool inManualConnection = false)
 {
 	worker::ConnectionParameters parameters;
-	parameters.WorkerType = "Server";
+	parameters.WorkerType = "ChatWorker";
 	parameters.Network.ConnectionType = worker::NetworkConnectionType::kTcp;
 	parameters.Network.UseExternalIp = false;
 
@@ -121,7 +117,7 @@ int main(int argc, char** argv) {
     
 
     // if no arguments are supplied, use the defaults for a local deployment
-	std::vector<std::string> arguments = argc == 1 ? std::vector<std::string>{ "localhost", "7777", "Server" } : std::vector<std::string>(argv + 1, argv + argc);
+	std::vector<std::string> arguments = argc == 1 ? std::vector<std::string>{ "localhost", "7777", "ChatWorker" } : std::vector<std::string>(argv + 1, argv + argc);
     
 	worker::Connection connection = IsDebuggerPresent() ? GetConnection(arguments, true) : GetConnection(arguments);
 	
@@ -142,7 +138,7 @@ int main(int argc, char** argv) {
     });
 
 	//Register callback for component
-	view.OnCommandRequest<chat::Chat::Commands::OutgoingMessage>([&](const worker::CommandRequestOp<chat::Chat::Commands::OutgoingMessage>& op) {
+	view.OnCommandRequest<player::Chat::Commands::OutgoingMessage>([&](const worker::CommandRequestOp<player::Chat::Commands::OutgoingMessage>& op) {
 		auto message_receiver = op.Request.receiver();
 		auto message = op.Request.message();
 		if (message_receiver.all())
@@ -151,7 +147,7 @@ int main(int argc, char** argv) {
 			{
 				auto entity_id = entityData.first;
 				worker::Entity& entity = entityData.second;
-				if (HasChatComponent(entity) && view.GetAuthority<chat::Chat>(entity_id) == worker::Authority::kAuthoritative)
+				if (HasChatComponent(entity) && view.GetAuthority<player::Chat>(entity_id) == worker::Authority::kAuthoritative)
 				{
 					TransmitMessage(connection, entity_id, message);
 				}
@@ -171,8 +167,8 @@ int main(int argc, char** argv) {
 		Logging::ApplicationLogger->Debug("[remote] Sender: " + std::to_string(op.EntityId));
 		Logging::ApplicationLogger->Debug("[remote] Receiver: " + std::to_string(op.Request.receiver().single_target()));
 		Logging::ApplicationLogger->Debug("[remote] Msg : " + op.Request.message());
-		chat::Chat::Commands::OutgoingMessage::Response ret = chat::Chat::Commands::OutgoingMessage::Response::Create();
-		connection.SendCommandResponse<chat::Chat::Commands::OutgoingMessage>(op.RequestId, ret);
+		player::Chat::Commands::OutgoingMessage::Response ret = player::Chat::Commands::OutgoingMessage::Response::Create();
+		connection.SendCommandResponse<player::Chat::Commands::OutgoingMessage>(op.RequestId, ret);
 	});
 
     if (connection.IsConnected()) {
@@ -210,10 +206,10 @@ int main(int argc, char** argv) {
 
 void TransmitMessage(worker::Connection& connection, worker::EntityId receiverID, std::string& message)
 {
-	chat::Chat::Update update;
-	chat::MessageEvent event{ message };
+	player::Chat::Update update;
+	player::MessageEvent event{ message };
 	update.add_incoming_message(event);
-	connection.SendComponentUpdate<chat::Chat>(receiverID, update);	
+	connection.SendComponentUpdate<player::Chat>(receiverID, update);
 }
 
 

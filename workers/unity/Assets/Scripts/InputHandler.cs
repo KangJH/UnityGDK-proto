@@ -9,6 +9,7 @@ using Player;
 using UnityEngine.UI;
 using Improbable.Gdk.Core.Commands;
 using Improbable.Worker.CInterop;
+using System;
 
 namespace ProtoGame
 {
@@ -19,14 +20,20 @@ namespace ProtoGame
         [Require] private PlayerHealthCommandSender commandSender;
         [Require] private WorldCommandSender worldComm;
         [Require] private ChatCommandSender chatCommandSender;
+        [Require] private ChatReader chatReader;
         private GameObject targetObject;
         private EntityId chatMgrEntityId;
 
-        public string mytempstring = "";
+        private Text outputText;
+
         public float attackDistance = 1.0f;
 
         void OnEnable()
         {
+            InputField chatInput = GameObject.FindGameObjectWithTag("ChatInput").GetComponent<InputField>();
+            chatInput.onEndEdit.AddListener(delegate { SendChatMessage(chatInput); });
+            outputText = GameObject.FindGameObjectWithTag("ChatOutput").GetComponent<Text>();
+            chatReader.OnIncomingMessageEvent += OnChatIncoming;
         }
 
         void Update()
@@ -36,21 +43,8 @@ namespace ProtoGame
                 worldComm.SendCreateEntityCommand(new WorldCommands.CreateEntity.Request(EntityCreationTemplate.CreateChatManagerEntity()), OnCreateEntityResponse);
             }
 
-            if (!string.IsNullOrEmpty(mytempstring))
-            {
-                EntityId dummy = new EntityId(0);
-                Receiver toWhom = new Receiver(dummy, -1, true);
-                chatCommandSender.SendOutgoingMessageCommand(chatMgrEntityId, new MessageReq
-                {
-                    Receiver = new Option<Receiver>(toWhom),
-                    Message = new Option<string>(mytempstring)
-                });
-                mytempstring = "";
-                Debug.Log("Send.");
-            }
             if (playerInput != null)
             {
-
                 if (Input.GetMouseButtonDown(0))
                 {
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -116,39 +110,29 @@ namespace ProtoGame
             // To do: Target message
             if (input.text.Length > 0)
             {
-                mytempstring = string.Copy(input.text);
-//                 if (chatCommandSender.IsValid)
-//                 {
-//                     EntityId dummy = new EntityId(0);
-//                     Receiver toWhom = new Receiver(dummy, -1, true);
-//                     chatCommandSender.SendOutgoingMessageCommand(chatMgrEntityId, new MessageReq
-//                     {
-//                         Receiver = new Option<Receiver>(toWhom),
-//                         Message = new Option<string>(input.text)
-//                     });
-//                     mytempstring = input.text;
-//                 }
-//                 else
-//                 {
-//                     Debug.Log("Fail to send.");
-//                 }
-                //                 chatManager = GameObject.FindGameObjectWithTag("ChatManager").GetComponent<ChatMananger>();
-                //                 if (chatManager != null && chatManager.isActiveAndEnabled)
-                //                 {
-                //                     EntityId dummy = new EntityId(0);
-                //                     Receiver toWhom = new Receiver(dummy, -1, true); 
-                // 
-                //                     chatManager.SendChatMessage(toWhom, input.text);
-                //                 }
-                //                 else
-                //                 {
-                //                     Debug.Log("Fail to send.");
-                //                 }
+                if (chatCommandSender.IsValid)
+                {
+                    EntityId dummy = new EntityId(0);
+                    Receiver toWhom = new Receiver(dummy, -1, true);
+                    chatCommandSender.SendOutgoingMessageCommand(chatMgrEntityId, new MessageReq
+                    {
+                        Receiver = new Option<Receiver>(toWhom),
+                        Message = new Option<string>(input.text)
+                    });
+                    Debug.Log("Send:" + chatMgrEntityId.ToString());
+                }
+                else
+                {
+                    Debug.Log("Fail to send.");
+                }
                 input.text = "";
-                Debug.Log(mytempstring);
             }
         }
 
+        public void OnChatIncoming(MessageEvent input)
+        {
+            outputText.text = outputText.text + input.Message + Environment.NewLine;
+        }
 
         private void OnCreateEntityResponse(WorldCommands.CreateEntity.ReceivedResponse response)
         {

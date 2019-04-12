@@ -13,16 +13,20 @@ using System;
 
 public class ChatHandler : MonoBehaviour
 {
+    [SerializeField]
+    List<Message> messageList = new List<Message>();
+    public int maxMessages = 25;
     [Require] private ChatCommandSender chatCommandSender;
     [Require] private ChatReader chatReader;
+    private GameObject chatPanel;
+    public GameObject outputText;
 
-    private Text outputText;
 
     void OnEnable()
     {
         InputField chatInput = GameObject.FindGameObjectWithTag("ChatInput").GetComponent<InputField>();
         chatInput.onEndEdit.AddListener(delegate { SendChatMessage(chatInput); });
-        outputText = GameObject.FindGameObjectWithTag("ChatOutput").GetComponent<Text>();
+        chatPanel = GameObject.FindGameObjectWithTag("ChatOutput");
         chatReader.OnIncomingMessageEvent += OnChatIncoming;
     }
 
@@ -53,6 +57,22 @@ public class ChatHandler : MonoBehaviour
 
     public void OnChatIncoming(MessageEvent input)
     {
-        outputText.text = outputText.text + input.Sender.ToString() + " : " + input.Message + Environment.NewLine;
+        if(messageList.Count >= maxMessages)
+        {
+            Destroy(messageList[0].textObject.gameObject);
+            messageList.Remove(messageList[0]);
+        }
+        GameObject newText = Instantiate(outputText, chatPanel.transform);
+
+        Message newMessage = new Message();
+        newMessage.textObject = newText.GetComponent<Text>();
+        newMessage.textObject.text = input.Sender.ToString() + " : " + input.Message;
+        messageList.Add(newMessage);
     }
+}
+
+[System.Serializable]
+public class Message
+{
+    public Text textObject;
 }

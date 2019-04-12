@@ -95,13 +95,13 @@ void PrintUsage()
 worker::Connection GetConnection(const std::vector<std::string>& inArguments, bool inManualConnection = false)
 {
 	worker::ConnectionParameters parameters;
-	parameters.WorkerType = "ChatWorker";
+	parameters.WorkerType = inArguments[2];
 	parameters.Network.ConnectionType = worker::NetworkConnectionType::kTcp;
 	parameters.Network.UseExternalIp = false;
 
 	// When running as an external worker using 'spatial local worker launch'
 	// The WorkerId isn't passed, so we generate a random one
-	std::string workerId = inManualConnection ? parameters.WorkerType + "_" + GetRandomCharacters(4) : inArguments[2];
+	std::string workerId = inManualConnection ? parameters.WorkerType + "_" + GetRandomCharacters(4) : inArguments[3];
 
 	Logging::ApplicationLogger->Debug("[local] Connecting to SpatialOS as " + workerId + "...");
 
@@ -114,10 +114,26 @@ int main(int argc, char** argv) {
 	SpatialOS::RequireExternal::ILogger::ApplicationLogger = std::make_unique<SpatialOSSamples::SampleLogger>("worker.log");
 
     Logging::ApplicationLogger->Debug("[local] Worker started.");
-    
-
-    // if no arguments are supplied, use the defaults for a local deployment
-	std::vector<std::string> arguments = argc == 1 ? std::vector<std::string>{ "localhost", "7777", "ChatWorker" } : std::vector<std::string>(argv + 1, argv + argc);
+	std::vector<std::string> arguments;
+	if (argc < 4)
+	{
+		Logging::ApplicationLogger->Error("[ChatWorker] You put wrong arguments.");
+		for (int i = 1; i < argc; i++)
+		{
+			std::string temp(*argv + i);
+			Logging::ApplicationLogger->Error("Your Input: " + temp);
+		}
+		Logging::ApplicationLogger->Error("[ChatWorker] Please check spatial.ChatWorker.worker.json.");
+		return -1;
+	}
+	else
+	{
+		for (int i = 1; i < argc; i++)
+		{
+			std::string temp(argv[i]);
+			arguments.push_back(temp);
+		}
+	}
     
 	worker::Connection connection = IsDebuggerPresent() ? GetConnection(arguments, true) : GetConnection(arguments);
 	
@@ -165,9 +181,6 @@ int main(int argc, char** argv) {
 				TransmitMessage(connection, sender, message_receiver.single_target(), message);
 			}
 		}
-		Logging::ApplicationLogger->Debug("[remote] Sender: " + std::to_string(op.EntityId));
-		Logging::ApplicationLogger->Debug("[remote] Receiver: " + std::to_string(op.Request.receiver().single_target()));
-		Logging::ApplicationLogger->Debug("[remote] Msg : " + op.Request.message());
 		player::Chat::Commands::OutgoingMessage::Response ret = player::Chat::Commands::OutgoingMessage::Response::Create();
 		connection.SendCommandResponse<player::Chat::Commands::OutgoingMessage>(op.RequestId, ret);
 	});
@@ -180,25 +193,11 @@ int main(int argc, char** argv) {
 		return -1;
 	}
     
-    auto lastTime = std::chrono::system_clock::now().time_since_epoch();
-    std::shared_ptr<SpatialOSSamples::SampleScheduler> scheduler = std::make_shared<SpatialOSSamples::SampleScheduler>(0);
-	
-	
-	
-	SpatialOSSamples::SetupDefaultCommandSenders(connection, view, scheduler);
-
 	
     // Run the main worker loop
     while (connection.IsConnected()) {
         auto ops = connection.GetOpList(kGetOpListTimeoutInMilliseconds);
         view.Process(ops);
-
-        auto currentTime = std::chrono::system_clock::now().time_since_epoch();
-        auto deltaTime = currentTime - lastTime;
-        std::chrono::milliseconds deltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime);
-        lastTime = currentTime;
-
-        scheduler->Update(deltaMs.count());
 		
     }
 

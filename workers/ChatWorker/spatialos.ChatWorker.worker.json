@@ -69,7 +69,9 @@
             "arguments": [
                 "${IMPROBABLE_RECEPTIONIST_HOST}",
                 "${IMPROBABLE_RECEPTIONIST_PORT}",
-                "${IMPROBABLE_WORKER_ID}"
+                "${IMPROBABLE_WORKER_NAME}",
+                "${IMPROBABLE_WORKER_ID}",
+                "${IMPROBABLE_LOG_FILE}"
             ]
         }
 

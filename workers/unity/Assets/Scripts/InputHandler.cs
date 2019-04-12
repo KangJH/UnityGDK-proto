@@ -1,15 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+
 using Improbable;
 using Improbable.Gdk.Core;
 using Improbable.Gdk.Subscriptions;
 
 using Player;
-using UnityEngine.UI;
-using Improbable.Gdk.Core.Commands;
-using Improbable.Worker.CInterop;
-using System;
 
 namespace ProtoGame
 {
@@ -36,20 +34,24 @@ namespace ProtoGame
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    RaycastHit hit;
-                    if (Physics.Raycast(ray, out hit))
+                    if (EventSystem.current.IsPointerOverGameObject())
                     {
-                        // The clicked object is Player, track the other player's target
-                        if (hit.transform.root.tag == "Player")
+                        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                        RaycastHit hit;
+                        if (Physics.Raycast(ray, out hit))
                         {
-                            targetObject = hit.transform.root.gameObject;
-                        }
-                        else
-                        {
-                            SendTargetPosition(hit.point);
+                            // The clicked object is Player, track the other player's target
+                            if (hit.transform.root.tag == "Player")
+                            {
+                                targetObject = hit.transform.root.gameObject;
+                            }
+                            else
+                            {
+                                SendTargetPosition(hit.point);
+                            }
                         }
                     }
+                        
                 }
 
                 if (targetObject != null)

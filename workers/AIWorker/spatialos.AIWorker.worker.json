@@ -18,13 +18,13 @@
                         "name": "C++",
                         "command": "bash",
                         "target": "windows",
-                        "arguments": [ "./build.sh", "Windows" ]
+                        "arguments": [ "./build.sh", "--target=Windows" ]
                     },
                     {
                         "name": "C++",
                         "command": "bash",
                         "target": "linux",
-                        "arguments": [ "./build.sh", "Linux" ]
+                        "arguments": [ "./build.sh", "--target=Linux" ]
                     },
                     {
                         "name": "zip",
@@ -34,9 +34,9 @@
                             "file",
                             "zip",
                             "--basePath=bin",
-                            "--output=../../build/assembly/worker/ChatWorker",
+                            "--output=../../build/assembly/worker/AIWorker",
                             "--worker_platform=windows",
-                            "ChatWorker.*"
+                            "AIWorker.*"
                         ]
                     },
                     {
@@ -47,9 +47,9 @@
                             "file",
                             "zip",
                             "--basePath=bin",
-                            "--output=../../build/assembly/worker/ChatWorker",
+                            "--output=../../build/assembly/worker/AIWorker",
                             "--worker_platform=linux",
-                            "ChatWorker.*"
+                            "AIWorker.*"
                         ]
                     }
 
@@ -70,7 +70,7 @@
     "bridge": {
         "worker_attribute_set": {
             "attributes": [
-                "ChatWorker"
+                "AIWorker"
             ]
         },
         "entity_interest": {
@@ -85,8 +85,8 @@
     },
     "managed": {
         "windows": {
-            "artifact_name": "ChatWorker@Windows.zip",
-            "command": "ChatWorker.exe",
+            "artifact_name": "AIWorker@Windows.zip",
+            "command": "AIWorker.exe",
             "arguments": [
                 "${IMPROBABLE_RECEPTIONIST_HOST}",
                 "${IMPROBABLE_RECEPTIONIST_PORT}",
@@ -101,7 +101,7 @@
         "default": {
             "run_type": "EXECUTABLE",
             "windows": {
-                "command": "bin/ChatWorker.exe"
+                "command": "bin/AIWorker.exe"
 
             }
         }

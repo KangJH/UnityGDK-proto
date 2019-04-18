@@ -17,6 +17,16 @@
         "hex_grid": {
           "num_workers": 2
         }
+      },
+      {
+        "layer": "ChatWorker",
+        "rectangle_grid": {
+          "cols": 1,
+          "rows": 1
+        },
+        "options": {
+          "manual_worker_connection_only": false
+        }
       }
     ]
   },
@@ -34,6 +44,16 @@
       "permissions": [
         {
           "all": {}
+        }
+      ]
+    },
+    {
+      "worker_type": "ChatWorker",
+      "flags": [],
+      "permissions": [
+        {
+          "all": {
+          }
         }
       ]
     }

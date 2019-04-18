@@ -1,0 +1,24 @@
+package npc;
+
+import "improbable/standard_library.schema";
+	
+enum EState {
+  IDLE = 0;
+  MOVE = 1;
+  ATTACK = 2;
+}
+
+type TDoneRes {}
+
+type TDoneReq {
+	uint32 error = 1;
+}
+
+component State {
+    // Component ID, unique within the project
+    id = 12100;
+	EState state = 1;
+	EntityId target_id = 2;
+	improbable.Coordinates target_pos = 3;
+	command TDoneRes done(TDoneReq);
+}

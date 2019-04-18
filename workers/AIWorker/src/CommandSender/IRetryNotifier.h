@@ -10,11 +10,7 @@ struct CommandResponseSummary;
 class IRetryNotifier
 {
 public:
-#if defined (_MSC_VER)
-	virtual ~IRetryNotifier() = 0 {};
-#else
-	virtual ~IRetryNotifier() {};
-#endif
+    virtual ~IRetryNotifier() = 0 {}
 
     virtual void ProcessResponse(const CommandResponseSummary& response) = 0;
     virtual void OnNotifyRetry(const std::function<void()>& callback) = 0;

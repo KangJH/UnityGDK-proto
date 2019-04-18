@@ -7,7 +7,15 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+
+#if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
+#elif defined(__linux__) || defined(__unix__ )
+#include <sys/ptrace.h>
+#include <algorithm>
+#else
+#   error "Unknown compiler"
+#endif
 
 #include "Samples/SampleLogger.h"
 #include "Samples/SampleScheduler.h"
@@ -16,7 +24,7 @@
 
 //#include "EntityBuilder/EntityBuilder.h"
 //#include "QuerySender/QuerySender.h"
-#include <player/Chat.h>
+#include "player/Chat.h"
 
 
 using namespace improbable;
@@ -134,8 +142,18 @@ int main(int argc, char** argv) {
 			arguments.push_back(temp);
 		}
 	}
-    
-	worker::Connection connection = IsDebuggerPresent() ? GetConnection(arguments, true) : GetConnection(arguments);
+	bool isDebuggingNow = false;
+#if defined(_WIN32) || defined(_WIN64)
+	if(IsDebuggerPresent())
+#elif defined(__linux__) || defined(__unix__ )
+	if (ptrace(PTRACE_TRACEME, 0, NULL, 0) == -1)
+#else
+#   error "Unknown compiler"
+#endif
+	{
+		isDebuggingNow = true;
+	}
+	worker::Connection connection = isDebuggingNow ? GetConnection(arguments, true) : GetConnection(arguments);
 	
     // Create a view
     worker::View view{ MyComponents{} };

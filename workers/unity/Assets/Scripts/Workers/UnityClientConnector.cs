@@ -50,6 +50,7 @@ namespace ProtoGame
 
             TransformSynchronizationHelper.AddClientSystems(Worker.World);
 
+
             JoinButton.GetComponent<Button>().interactable = true;
             JoinButton.SetActive(false);
             LeaveButton.SetActive(true);

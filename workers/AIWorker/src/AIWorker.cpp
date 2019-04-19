@@ -116,9 +116,9 @@ double fRand(double fMin, double fMax)
 
 Coordinates AIWorker::GetRandPos()
 {
-	double x = fRand(-10, 10);
-	double y = 0;
-	double z = fRand(-10, 10);
+	double x = fRand(16, 60);
+	double y = 3.0f;
+	double z = fRand(3, 46);
 	Coordinates ret(x, y, z);
 	return ret;
 }

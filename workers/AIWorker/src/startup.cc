@@ -54,7 +54,7 @@ worker::Connection GetConnection(const std::vector<std::string>& inArguments, bo
 	// The WorkerId isn't passed, so we generate a random one
 	std::string workerId = inManualConnection ? parameters.WorkerType + "_" + GetRandomCharacters(4) : inArguments[3];
 
-	Logging::ApplicationLogger->Debug("[local] Connecting to SpatialOS as " + workerId + "...");
+	Logging::ApplicationLogger->Debug("[AIWorker] Connecting to SpatialOS as " + workerId + "...");
 
 	return worker::Connection::ConnectAsync(MyComponents{}, inArguments[0], atoi(inArguments[1].c_str()), workerId, parameters).Get();
 }
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     srand(time(nullptr));
 	SpatialOS::RequireExternal::ILogger::ApplicationLogger = std::make_unique<SpatialOSSamples::SampleLogger>("worker.log");
 
-    Logging::ApplicationLogger->Debug("[local] Worker started.");
+    Logging::ApplicationLogger->Debug("[AIWorker] Worker started.");
 	std::vector<std::string> arguments;
 	if (argc < 4)
 	{
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 
 
     if (connection.IsConnected()) {
-        Logging::ApplicationLogger->Debug("[local server] Connected successfully to SpatialOS, listening to ops... ");
+        Logging::ApplicationLogger->Debug("[AIWorker] Connected successfully to SpatialOS, listening to ops... ");
     }
 	else
 	{

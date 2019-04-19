@@ -17,10 +17,7 @@ namespace ProtoGame.Editor
 
         public static void Generate(Arguments arguments)
         {
-            Debug.Log("Generating snapshot.");
             var snapshot = CreateSnapshot();
-
-            Debug.Log($"Writing snapshot to: {arguments.OutputPath}");
             snapshot.WriteToFile(arguments.OutputPath);
         }
 
@@ -30,6 +27,10 @@ namespace ProtoGame.Editor
             AddPlayerSpawner(snapshot);
 
             snapshot.AddEntity(EntityCreationTemplate.CreateLandEntity());
+            for(int i = 0; i < 10; i++)
+            {
+                snapshot.AddEntity(EntityCreationTemplate.CreateNPCEntity());
+            }
             return snapshot;
         }
 

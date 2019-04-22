@@ -8,6 +8,8 @@
 
 #include "CommandSender/RetryStrategyConfig.h"
 
+
+
 //#include "Samples/CommandsTest.h"
 
 /*****************************************************************************************************************************************/
@@ -35,7 +37,7 @@ void SpatialOSSamples::SetupDefaultCommandSenders(worker::Connection& connection
     /* Setup a CommandSender with advised retry strategies                                                      */
     /* ref: https://docs.improbable.io/reference/13.1/csharpsdk/api-reference#improbable-worker-statuscode-enum */
     /************************************************************************************************************/
-    std::unordered_map<worker::StatusCode, SpatialOS::RetryStrategy> defaultMapping{
+    std::unordered_map<worker::StatusCode, SpatialOS::RetryStrategy, worker::StatusCodeHash> defaultMapping{
         { worker::StatusCode::kApplicationError, SpatialOS::RetryStrategy::Never },
         { worker::StatusCode::kPermissionDenied, SpatialOS::RetryStrategy::Never },
         { worker::StatusCode::kInternalError, SpatialOS::RetryStrategy::Never },
@@ -51,7 +53,7 @@ void SpatialOSSamples::SetupDefaultCommandSenders(worker::Connection& connection
     /***************************************************************************/
     /* Setup a CommandSender for Low Priority commands (never retry)           */
     /***************************************************************************/
-    std::unordered_map<worker::StatusCode, SpatialOS::RetryStrategy> lowPriorityMapping{
+    std::unordered_map<worker::StatusCode, SpatialOS::RetryStrategy, worker::StatusCodeHash> lowPriorityMapping{
         { worker::StatusCode::kApplicationError, SpatialOS::RetryStrategy::Never },
         { worker::StatusCode::kPermissionDenied, SpatialOS::RetryStrategy::Never },
         { worker::StatusCode::kInternalError, SpatialOS::RetryStrategy::Never },

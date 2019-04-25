@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 #include <fstream>
-
+#include <improbable/worker.h>
 #include "RequireExternal/ILogger.h"
 
 namespace SpatialOSSamples {
@@ -14,7 +14,7 @@ namespace SpatialOSSamples {
 class SampleLogger : public SpatialOS::RequireExternal::ILogger
 {
 public:
-    SampleLogger(const std::string& fileName);
+    SampleLogger(const std::string& fileName, worker::Connection& connection);
 
     virtual void Debug(const std::string& message) override;
 
@@ -24,8 +24,8 @@ public:
 
 private:
     std::ofstream outStream;
-
-    void DoLog(const std::string& message);
+	worker::Connection& connection;
+    void DoLog(worker::LogLevel level, const std::string& message);
     std::string TimeStamp();
 };
 

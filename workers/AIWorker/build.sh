@@ -9,7 +9,7 @@ BUILD_PLATFORMS=(macOS64 Windows64 Linux64)
 DOWNLOAD_DIR="$(pwd)/dependencies"
 OUTPUT_DIR="$(pwd)/bin"
 BUILD_DIR="$(pwd)"
-SDK_VERSION="13.4.0"
+SDK_VERSION="13.6.2"
 mkdir -p "${DOWNLOAD_DIR}"
 
 function isLinux() {

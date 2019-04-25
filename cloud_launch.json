@@ -20,22 +20,14 @@
         },
         {
             "layer": "ChatWorker",
-            "rectangle_grid": {
-                "cols": 1,
-                "rows": 1
-            },
-            "options": {
-                "manual_worker_connection_only": false
+            "hex_grid": {
+                "num_workers": 1
             }
         },
         {
             "layer": "AIWorker",
-            "rectangle_grid": {
-                "cols": 1,
-                "rows": 1
-            },
-            "options": {
-                "manual_worker_connection_only": false
+            "hex_grid": {
+                "num_workers": 1
             }
         }
     ]

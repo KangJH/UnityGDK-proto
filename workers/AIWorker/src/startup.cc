@@ -58,7 +58,7 @@ worker::Connection GetConnection(const std::vector<std::string>& inArguments, bo
 	// The WorkerId isn't passed, so we generate a random one
 	std::string workerId = inManualConnection ? parameters.WorkerType + "_" + GetRandomCharacters(4) : inArguments[3];
 
-	Logging::ApplicationLogger->Debug("[AIWorker] Connecting to SpatialOS as " + workerId + "...");
+	//Logging::ApplicationLogger->Error("[AIWorker] Connecting to SpatialOS as " + workerId + "...");
 
 	return worker::Connection::ConnectAsync(MyComponents{}, inArguments[0], atoi(inArguments[1].c_str()), workerId, parameters).Get();
 }
@@ -66,19 +66,17 @@ worker::Connection GetConnection(const std::vector<std::string>& inArguments, bo
 // Entry point
 int main(int argc, char** argv) {
     srand(time(nullptr));
-	SpatialOS::RequireExternal::ILogger::ApplicationLogger = std::make_unique<SpatialOSSamples::SampleLogger>("worker.log");
 
-    Logging::ApplicationLogger->Debug("[AIWorker] Worker started.");
 	std::vector<std::string> arguments;
 	if (argc < 4)
 	{
-		Logging::ApplicationLogger->Error("[AIWorker] You put wrong arguments.");
+		//Logging::ApplicationLogger->Error("[AIWorker] You put wrong arguments.");
 		for (int i = 1; i < argc; i++)
 		{
 			std::string temp(*argv + i);
-			Logging::ApplicationLogger->Error("Your Input: " + temp);
+			//Logging::ApplicationLogger->Error("Your Input: " + temp);
 		}
-		Logging::ApplicationLogger->Error("[AIWorker] Please check spatial.AIWorker.worker.json.");
+		//Logging::ApplicationLogger->Error("[AIWorker] Please check spatial.AIWorker.worker.json.");
 		return -1;
 	}
 	else
@@ -102,7 +100,10 @@ int main(int argc, char** argv) {
 		isDebuggingNow = true;
 	}
 	worker::Connection connection = isDebuggingNow ? GetConnection(arguments, true) : GetConnection(arguments);
-	
+
+	SpatialOS::RequireExternal::ILogger::ApplicationLogger = std::make_unique<SpatialOSSamples::SampleLogger>("AIWorker.log", connection);
+	Logging::ApplicationLogger->Error("[AIWorker] Worker started.");
+
     // Create a view
     worker::View view{ MyComponents{} };
 
@@ -120,7 +121,7 @@ int main(int argc, char** argv) {
     });
 
     if (connection.IsConnected()) {
-        Logging::ApplicationLogger->Debug("[AIWorker] Connected successfully to SpatialOS, listening to ops... ");
+        Logging::ApplicationLogger->Error("[AIWorker] Connected successfully to SpatialOS, listening to ops... ");
     }
 	else
 	{

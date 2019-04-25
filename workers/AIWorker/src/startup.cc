@@ -1,19 +1,23 @@
 #include <improbable/worker.h>
 #include <improbable/standard_library.h>
-#include <iostream>
 #include <improbable/view.h>
 #include <chrono>
-#include <thread>
-#include <atomic>
-#include <mutex>
+
+#if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
+#elif defined(__linux__) || defined(__unix__ )
+#include <sys/ptrace.h>
+#include <algorithm>
+#else
+#   error "Unknown compiler"
+#endif
 
 #include "Samples/SampleLogger.h"
 #include "Samples/SampleScheduler.h"
 
 #include "Samples/SpatialOSUtilitiesExamples.h"
 
-#include <npc/State.h>
+#include "npc/state.h"
 #include "AIWorker.h"
 
 using namespace improbable;
@@ -86,7 +90,18 @@ int main(int argc, char** argv) {
 		}
 	}
     
-	worker::Connection connection = IsDebuggerPresent() ? GetConnection(arguments, true) : GetConnection(arguments);
+	bool isDebuggingNow = false;
+#if defined(_WIN32) || defined(_WIN64)
+	if (IsDebuggerPresent())
+#elif defined(__linux__) || defined(__unix__ )
+	if (ptrace(PTRACE_TRACEME, 0, NULL, 0) == -1)
+#else
+#   error "Unknown compiler"
+#endif
+	{
+		isDebuggingNow = true;
+	}
+	worker::Connection connection = isDebuggingNow ? GetConnection(arguments, true) : GetConnection(arguments);
 	
     // Create a view
     worker::View view{ MyComponents{} };
@@ -103,7 +118,6 @@ int main(int argc, char** argv) {
         }
         Logging::ApplicationLogger->Debug("[remote] " + op.Message);
     });
-
 
     if (connection.IsConnected()) {
         Logging::ApplicationLogger->Debug("[AIWorker] Connected successfully to SpatialOS, listening to ops... ");

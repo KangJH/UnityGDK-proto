@@ -2,8 +2,8 @@
 
 #include <improbable/worker.h>
 #include <improbable/standard_library.h>
-#include <npc/State.h>
 #include <improbable/view.h>
+#include <math.h>
 
 using namespace npc;
 using namespace worker;
@@ -32,7 +32,7 @@ void AIWorker::Initialize(worker::View& view, worker::Connection& connection)
 void AIWorker::Process()
 {
 	View& view = *(GetInstance().m_pView);
-	for each (auto var in view.Entities)
+	for (auto var : view.Entities)
 	{
 		Entity& entity = var.second;
 		worker::Option<State::Data&> state = entity.Get<State>();
@@ -95,7 +95,7 @@ EntityId AIWorker::HasNearActor(const View& view, const Entity& entity)
 	EntityId ret = -1;
 	double attack_able_distance = 1.0;
 	worker::Option<const PositionData&> pos = entity.Get<Position>();
-	for each (auto var in view.Entities)
+	for (auto var : view.Entities)
 	{
 		Entity& target_entity = var.second;
 		worker::Option<PositionData&> target_pos = target_entity.Get<Position>();

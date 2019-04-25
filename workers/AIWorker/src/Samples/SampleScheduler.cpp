@@ -2,23 +2,7 @@
 
 using namespace SpatialOSSamples;
 
-struct SampleScheduler::Action
-{
-    Action(const std::function<void()>& action, unsigned long triggerMillis, unsigned long intervalMillis)
-        : callback(action),
-        triggerTime(triggerMillis),
-        repeat(intervalMillis)
-    {}
 
-    bool operator>(const Action& other) const
-    {
-        return triggerTime > other.triggerTime;
-    }
-
-    std::function<void()> callback;
-    unsigned long triggerTime;
-    unsigned long repeat;
-};
 
 SampleScheduler::SampleScheduler(unsigned long startTime) : currentTime(startTime)
 {

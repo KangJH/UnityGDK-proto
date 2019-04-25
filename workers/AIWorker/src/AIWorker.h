@@ -1,7 +1,7 @@
 #pragma once
 
 #include <improbable/worker.h>
-#include <npc/State.h>
+#include "npc/state.h"
 #include <improbable/view.h>
 #include <improbable/standard_library.h>
 

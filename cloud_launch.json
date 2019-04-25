@@ -12,50 +12,70 @@
   },
   "load_balancing": {
     "layer_configurations": [
-      {
-        "layer": "UnityGameLogic",
-        "hex_grid": {
-          "num_workers": 2
-        }
-      },
-      {
-        "layer": "ChatWorker",
-        "rectangle_grid": {
-          "cols": 1,
-          "rows": 1
+        {
+            "layer": "UnityGameLogic",
+            "hex_grid": {
+                "num_workers": 2
+            }
         },
-        "options": {
-          "manual_worker_connection_only": false
+        {
+            "layer": "ChatWorker",
+            "rectangle_grid": {
+                "cols": 1,
+                "rows": 1
+            },
+            "options": {
+                "manual_worker_connection_only": false
+            }
+        },
+        {
+            "layer": "AIWorker",
+            "rectangle_grid": {
+                "cols": 1,
+                "rows": 1
+            },
+            "options": {
+                "manual_worker_connection_only": false
+            }
         }
-      }
     ]
   },
-  "workers": [
-    {
-      "worker_type": "UnityGameLogic",
-      "permissions": [
+    "workers": [
         {
-          "all": {}
-        }
-      ]
-    },
-    {
-      "worker_type": "UnityClient",
-      "permissions": [
+            "worker_type": "UnityGameLogic",
+            "permissions": [
+                {
+                    "all": {}
+                }
+            ]
+        },
         {
-          "all": {}
-        }
-      ]
-    },
-    {
-      "worker_type": "ChatWorker",
-      "flags": [],
-      "permissions": [
+            "worker_type": "UnityClient",
+            "permissions": [
+                {
+                    "all": {}
+                }
+            ]
+        },
         {
-          "all": {
-          }
+            "worker_type": "ChatWorker",
+            "flags": [],
+            "permissions": [
+                {
+                    "all": {
+                    }
+                }
+            ]
+        },
+        {
+            "worker_type": "AIWorker",
+            "flags": [],
+            "permissions": [
+                {
+                    "all": {
+                    }
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

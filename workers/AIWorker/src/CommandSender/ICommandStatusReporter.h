@@ -12,7 +12,12 @@ class IResponseObject;
 class ICommandStatusReporter
 {
 public:
-    virtual ~ICommandStatusReporter() = 0 {};
+#if defined (_MSC_VER)
+	virtual ~ICommandStatusReporter() = 0 {};
+#else
+	virtual ~ICommandStatusReporter() {};
+#endif
+    
 
     virtual void OnCompletion(CommandId commandId, const std::function<void (IResponseObject&)>& responseHandler) = 0;
     virtual void RemoveCallbacks(CommandId commandId) = 0;

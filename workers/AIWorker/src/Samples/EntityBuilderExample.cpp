@@ -6,7 +6,6 @@
 #include "improbable/worker.h"
 #include "EntityBuilder/EntityBuilder.h"
 #include "Samples/SampleLogger.h"
-#include <player/Chat.h>
 
 using Logging = SpatialOS::RequireExternal::ILogger;
 
@@ -31,25 +30,3 @@ void OnEntityCreatedResponse(const worker::CreateEntityResponseOp& op)
     createRequests.erase(op.RequestId.Id);
 }
 
-void SpatialOSSamples::SpawnChatManager(worker::Connection& connection, worker::Dispatcher& dispatcher)
-{
-	static auto dispatcherCallbackHandle = dispatcher.OnCreateEntityResponse(&OnEntityCreatedResponse);
-
-	std::string metadataName = "chatWorker";
-	std::string managedAttributeName = "Player";
-	std::string workerAttributeName = "ChatWorker";
-	std::list<std::string> readAttributeList = { managedAttributeName, workerAttributeName };
-
-	worker::Entity entity = SpatialOS::EntityBuilder::Begin()
-		.AddPosition(improbable::Coordinates(rand() % 101, rand() % 101, rand() % 101), managedAttributeName)
-		.AddMetadata(metadataName, workerAttributeName)
-		.AddComponent<player::Chat>({}, workerAttributeName)
-		.SetPersistence(false)
-		.SetReadAcl(readAttributeList)
-		.SetEntityAclComponentWriteAccess(workerAttributeName)
-		.Build();
-
-	// Create the entity
-	worker::RequestId<worker::CreateEntityRequest> createRequest = connection.SendCreateEntityRequest(entity, worker::Option<worker::EntityId>(), 5000);
-	createRequests.emplace(createRequest.Id);
-}

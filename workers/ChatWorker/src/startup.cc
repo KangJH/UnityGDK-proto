@@ -1,12 +1,7 @@
 #include <improbable/worker.h>
 #include <improbable/standard_library.h>
-#include <iostream>
-#include <chrono>
 #include <improbable/view.h>
 #include <chrono>
-#include <thread>
-#include <atomic>
-#include <mutex>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -22,26 +17,21 @@
 
 #include "Samples/SpatialOSUtilitiesExamples.h"
 
-//#include "EntityBuilder/EntityBuilder.h"
-//#include "QuerySender/QuerySender.h"
-#include "player/Chat.h"
-
+#include "player/chat.h"
+#include "ChatWorker.h"
 
 using namespace improbable;
+using namespace player;
 
 using Logging = SpatialOS::RequireExternal::ILogger;
 
 // Use this to make a worker::ComponentRegistry.
 // For example use worker::Components<improbable::Position, improbable::Metadata> to track these common components
-using MyComponents = worker::Components<EntityAcl, Metadata, Persistence, Position, player::Chat>;
+using MyComponents = worker::Components<EntityAcl, Metadata, Persistence, Position, Chat>;
 
 // Constants and parameters
-const int ErrorExitStatus = 1;
 const std::string kLoggerName = "startup.cc";
 const std::uint32_t kGetOpListTimeoutInMilliseconds = 100;
-const std::uint32_t kCommandTimeoutMilliseconds = 500;
-
-void TransmitMessage(worker::Connection& connection, worker::EntityId senderID, worker::EntityId receiverID, std::string& message);
 
 std::string GetRandomCharacters(size_t count) {
     const auto randchar = []() -> char {
@@ -57,49 +47,6 @@ std::string GetRandomCharacters(size_t count) {
     return str;
 }
 
-bool HasChatComponent(const worker::Entity& entity)
-{
-    worker::Option<const player::Chat::Data&> chat = entity.Get<player::Chat>();
-    return !chat.empty();
-}
-
-worker::EntityId GetChatManager(const worker::View& dispatcher)
-{
-	worker::EntityId ret = 0;
-	for (auto& entityData : dispatcher.Entities)
-	{
-		auto entity_id = entityData.first;
-		auto& entity = entityData.second;
-		worker::Option<const MetadataData&> metadata = entity.Get<Metadata>();
-		if (!metadata.empty())
-		{
-			std::string entity_type = (*metadata).entity_type();
-			if (entity_type.compare("chatWorker") == 0)
-			{
-				ret = entity_id;
-				break;
-			}
-		}
-		else
-		{
-			Logging::ApplicationLogger->Debug("NO Meta");
-		}
-	}
-	return ret;
-}
-
-void PrintUsage()
-{
-    Logging::ApplicationLogger->Debug("Usage: Managed receptionist <hostname> <port> <worker_id>");
-    Logging::ApplicationLogger->Debug("\n");
-    Logging::ApplicationLogger->Debug("Connects to SpatialOS");
-    Logging::ApplicationLogger->Debug("    <hostname>      - hostname of the receptionist or locator to connect to.");
-    Logging::ApplicationLogger->Debug("    <port>          - port to use if connecting through the receptionist.");
-    Logging::ApplicationLogger->Debug("    <logfile>       - log file to use.");
-    Logging::ApplicationLogger->Debug("    <worker_id>     - (optional) name of the worker assigned by SpatialOS.");
-    Logging::ApplicationLogger->Debug("\n");
-}
-
 worker::Connection GetConnection(const std::vector<std::string>& inArguments, bool inManualConnection = false)
 {
 	worker::ConnectionParameters parameters;
@@ -111,7 +58,7 @@ worker::Connection GetConnection(const std::vector<std::string>& inArguments, bo
 	// The WorkerId isn't passed, so we generate a random one
 	std::string workerId = inManualConnection ? parameters.WorkerType + "_" + GetRandomCharacters(4) : inArguments[3];
 
-	Logging::ApplicationLogger->Debug("[local] Connecting to SpatialOS as " + workerId + "...");
+	Logging::ApplicationLogger->Debug("[ChatWorker] Connecting to SpatialOS as " + workerId + "...");
 
 	return worker::Connection::ConnectAsync(MyComponents{}, inArguments[0], atoi(inArguments[1].c_str()), workerId, parameters).Get();
 }
@@ -121,7 +68,7 @@ int main(int argc, char** argv) {
     srand(time(nullptr));
 	SpatialOS::RequireExternal::ILogger::ApplicationLogger = std::make_unique<SpatialOSSamples::SampleLogger>("worker.log");
 
-    Logging::ApplicationLogger->Debug("[local] Worker started.");
+    Logging::ApplicationLogger->Debug("[ChatWorker] Worker started.");
 	std::vector<std::string> arguments;
 	if (argc < 4)
 	{
@@ -144,7 +91,7 @@ int main(int argc, char** argv) {
 	}
 	bool isDebuggingNow = false;
 #if defined(_WIN32) || defined(_WIN64)
-	if(IsDebuggerPresent())
+	if (IsDebuggerPresent())
 #elif defined(__linux__) || defined(__unix__ )
 	if (ptrace(PTRACE_TRACEME, 0, NULL, 0) == -1)
 #else
@@ -171,63 +118,32 @@ int main(int argc, char** argv) {
         Logging::ApplicationLogger->Debug("[remote] " + op.Message);
     });
 
-	//Register callback for component
-	view.OnCommandRequest<player::Chat::Commands::OutgoingMessage>([&](const worker::CommandRequestOp<player::Chat::Commands::OutgoingMessage>& op) {
-		auto message_receiver = op.Request.receiver();
-		auto sender = op.EntityId;
-		auto message = op.Request.message();
-		if (message_receiver.all())
-		{
-			for (auto& entityData : view.Entities)
-			{
-				auto entity_id = entityData.first;
-				worker::Entity& entity = entityData.second;
-				if (HasChatComponent(entity) && view.GetAuthority<player::Chat>(entity_id) == worker::Authority::kAuthoritative)
-				{
-					TransmitMessage(connection, sender, entity_id, message);
-				}
-			}
-		}
-		else
-		{
-			if (message_receiver.group_id() != -1)
-			{
-				// To do
-			}
-			else
-			{
-				TransmitMessage(connection, sender, message_receiver.single_target(), message);
-			}
-		}
-		player::Chat::Commands::OutgoingMessage::Response ret = player::Chat::Commands::OutgoingMessage::Response::Create();
-		connection.SendCommandResponse<player::Chat::Commands::OutgoingMessage>(op.RequestId, ret);
-	});
-
     if (connection.IsConnected()) {
-        Logging::ApplicationLogger->Debug("[local server] Connected successfully to SpatialOS, listening to ops... ");
+        Logging::ApplicationLogger->Debug("[ChatWorker] Connected successfully to SpatialOS, listening to ops... ");
     }
 	else
 	{
 		return -1;
 	}
-    
+	//Register callback for component
+	ChatWorker& aiWorker = ChatWorker::GetInstance();
+	aiWorker.Initialize(view, connection);
+	auto lastTime = std::chrono::system_clock::now().time_since_epoch();
+	std::shared_ptr<SpatialOSSamples::SampleScheduler> scheduler = std::make_shared<SpatialOSSamples::SampleScheduler>(0);
 	
+	scheduler->ScheduleRepeat(&(ChatWorker::Process), 10000);
     // Run the main worker loop
     while (connection.IsConnected()) {
         auto ops = connection.GetOpList(kGetOpListTimeoutInMilliseconds);
         view.Process(ops);
-		
+		auto currentTime = std::chrono::system_clock::now().time_since_epoch();
+		auto deltaTime = currentTime - lastTime;
+		std::chrono::milliseconds deltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime);
+		lastTime = currentTime;
+		scheduler->Update(deltaMs.count());
     }
 
     return 1;
-}
-
-void TransmitMessage(worker::Connection& connection, worker::EntityId senderID, worker::EntityId receiverID, std::string& message)
-{
-	player::Chat::Update update;
-	player::MessageEvent event(senderID, message);
-	update.add_incoming_message(event);
-	connection.SendComponentUpdate<player::Chat>(receiverID, update);
 }
 
 

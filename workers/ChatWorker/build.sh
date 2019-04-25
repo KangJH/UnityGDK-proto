@@ -7,7 +7,7 @@ TARGET="$1"
 SCHEMA_DIRS="$(pwd)/../../schema"
 BUILD_PLATFORMS=(macOS64 Windows64 Linux64)
 DOWNLOAD_DIR="$(pwd)/dependencies"
-ASSEMBLY_DIR="$(pwd)/../../build/assembly/worker"
+OUTPUT_DIR="$(pwd)/bin"
 BUILD_DIR="$(pwd)"
 SDK_VERSION="13.4.0"
 mkdir -p "${DOWNLOAD_DIR}"
@@ -74,8 +74,6 @@ mkdir -p "$OUT_DIR"
 #mkdir -p "${BUILD_DIR}/SpatialOS/schema/bin"
 "${DOWNLOAD_DIR}"/schema_compiler --schema_path="${SCHEMA_DIRS}" --schema_path="${DOWNLOAD_DIR}" --cpp_out="$OUT_DIR" --load_all_schema_on_schema_path "${SCHEMA_DIRS}"/*/*.schema "${DOWNLOAD_DIR}"/improbable/*.schema
 #"${DOWNLOAD_DIR}/schema_compiler" --schema_path="${BUILD_DIR}/SpatialOS/schema" --schema_path="${DOWNLOAD_DIR}" --descriptor_set_out="${BUILD_DIR}/SpatialOS/schema/bin/schema.descriptor" --load_all_schema_on_schema_path "${DOWNLOAD_DIR}"/improbable/*.schema "${BUILD_DIR}"/SpatialOS/schema/*/*/*.schema
-
-
 if isWindows; then
   cmake -E make_directory cmake_build
   pushd cmake_build
@@ -84,10 +82,7 @@ if isWindows; then
 elif isMacOS; then
   retrievePackage "worker_sdk" "cpp-static-x86_64-clang_libcpp-macos"
 else
-  mkdir -p "linux-cross-compile_build"
-  pushd linux-cross-compile_build
-  source "${BUILD_DIR}"/cross-compile.sh ChatWorker "${BUILD_DIR}" "${ASSEMBLY_DIR}"
+  source "${BUILD_DIR}"/cross-compile.sh ChatWorker "${OUTPUT_DIR}"
 fi
-
 
 echo "Build complete"

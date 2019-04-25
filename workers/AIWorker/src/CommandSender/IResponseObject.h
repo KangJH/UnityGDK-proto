@@ -10,9 +10,12 @@ namespace SpatialOS {
 class IResponseObject
 {
 public:
-    virtual ~IResponseObject() = 0 {};
-
-    virtual bool Success() = 0;
+#if defined (_MSC_VER)
+	virtual ~IResponseObject() = 0 {};
+#else
+	virtual ~IResponseObject() {};
+#endif    
+	virtual bool Success() = 0;
     virtual worker::StatusCode StatusCode() = 0;
     virtual const std::string& ErrorMessage() = 0;
 };
